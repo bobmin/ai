@@ -13,6 +13,10 @@ abstract public class Neuron {
 		counter++;
 	}
 
+	public int getId() {
+		return id;
+	}
+
 	abstract public double getOutput();
 
 	@Override

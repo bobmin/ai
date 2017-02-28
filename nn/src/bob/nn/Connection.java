@@ -22,4 +22,9 @@ public class Connection {
 		return weight;
 	}
 
+	@Override
+	public String toString() {
+		return String.format("%s [weight = %f, neuron = %d]", this.getClass().getName(), weight, n.getId());
+	}
+
 }
