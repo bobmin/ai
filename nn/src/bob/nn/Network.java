@@ -1,6 +1,7 @@
 package bob.nn;
 
 import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -8,6 +9,9 @@ import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.logging.Logger;
+
+import bob.nn.activation.Activation;
+import bob.nn.activation.LinearActivation;
 
 public class Network {
 
@@ -24,7 +28,7 @@ public class Network {
 			{ 0.6, 1.0 }, { 0.7, 1.0 }, { 0.8, 1.0 }, { 0.9, 1.0 } };
 
 	/** learning rate */
-	private static final double m = 0.01;
+	private static final double m = 0.1;
 
 	/** bias */
 	private static final double b = 1.0;
@@ -33,44 +37,61 @@ public class Network {
 		final Network network = new Network();
 
 		network.createInput(1);
-		network.createOutput(1);
+		network.createOutput(1, new LinearActivation());
 
 		network.print(System.out);
 
-		int loop = 0;
-		boolean auto = false;
+		double globalError;
+		int loop = 0, auto = 0;
 		do {
+			globalError = 0.0;
 			for (int trainIndex = 0; trainIndex < TRAIN.length; trainIndex++) {
 				final double x = TRAIN[trainIndex][0];
 				network.setInput(0, x);
 				final double[] result = network.getResult();
 				for (int resultIndex = 0; resultIndex < result.length; resultIndex++) {
 					final double actual = result[resultIndex];
-					final double error = TRAIN[trainIndex][1] - actual;
+					final double localError = TRAIN[trainIndex][1] - actual;
+					globalError += localError;
 					System.out.printf("TRAIN[%d][%d]: x = %.1f, actual = %.1f, error = %f%n", loop, trainIndex, x,
-							actual, error);
+							actual, localError);
 					final Set<Connection> connecttions = network.output[resultIndex].getInput();
 					for (Connection c : connecttions) {
 						final double oldWeight = c.getWeight();
-						final double newWeight = oldWeight + error * m * x;
+						final double newWeight = oldWeight + localError * m * x;
 						c.setWeight(newWeight);
 					}
 				}
 			}
-			if (!auto) {
-				System.out.print("(p)rint, (a)uto, (e)xit: ");
+			globalError = globalError / TRAIN.length;
+			System.out.printf("global error: %f%n", globalError);
+			System.out.println("------------------------------------------------------------");
+			if (loop >= auto) {
+				System.out.print("(p)rint, (a)uto, (t)est, (e)xit: ");
 				final Scanner keyboard = new Scanner(System.in);
 				final String cmd = keyboard.nextLine();
 				if ("p".equals(cmd)) {
 					network.print(System.out);
 				} else if ("a".equals(cmd)) {
-					auto = true;
+					System.out.print("lines: ");
+					final int lines = keyboard.nextInt();
+					auto = loop + lines;
+				} else if ("t".equals(cmd)) {
+					String testLine = null;
+					do {
+						System.out.print("input or (q)uit: ");
+						testLine = keyboard.nextLine();
+						if (testLine.matches("[\\d\\.]+")) {
+							network.setInput(0, Double.parseDouble(testLine));
+							System.out.println(testLine + " --> " + Arrays.toString(network.getResult()));
+						}
+					} while (!"q".equals(testLine));
 				} else if ("e".equals(cmd)) {
 					System.exit(0);
 				}
 			}
 			loop++;
-		} while (loop < 100);
+		} while (globalError > 0.1 && loop < 1000);
 
 	}
 
@@ -122,10 +143,11 @@ public class Network {
 		hiddenMap.put(Integer.valueOf(hiddenMap.size()), newNeurons);
 	}
 
-	public void createOutput(final int count) {
+	public void createOutput(final int count, final Activation fkt) {
 		output = new WorkingNeuron[count];
 		for (int idx = 0; idx < count; idx++) {
 			output[idx] = new WorkingNeuron();
+			output[idx].setActivation(fkt);
 		}
 		connect(output);
 	}
