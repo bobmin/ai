@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.logging.Logger;
 
 /**
- * Ein Netzwerk hat einen Eingabe-Layer, einen Ausgabe-Layer und optional
- * versteckte Layer.
+ * Ein Netzwerk hat eine Eingabeschicht, eine Ausgabeschicht und optional
+ * versteckte Schichten.
  * 
  * @author bobmin
  *
@@ -41,7 +41,9 @@ public class Network {
 		if (1 > outputCount) {
 			throw new IllegalArgumentException("outputCount < 1");
 		}
+		// die Eingabeschicht
 		input = createInputLayer(inputCount);
+		// die versteckten Schichten
 		hidden = new LinkedList<>();
 		for (int idx = 0; idx < hiddenCount.length; idx++) {
 			WorkingNeuron[] x = createWorkingNeurons(hiddenCount[idx]);
@@ -53,6 +55,7 @@ public class Network {
 			}
 			hidden.add(x);
 		}
+		// die Ausgabeschicht
 		output = createWorkingNeurons(outputCount);
 		if (0 == hiddenCount.length) {
 			connect(input, output);
