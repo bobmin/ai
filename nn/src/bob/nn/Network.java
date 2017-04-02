@@ -26,13 +26,16 @@ public class Network {
 	private final WorkingNeuron[] output;
 
 	/**
-	 * Erstellt das Netzwerk.
+	 * Erstellt ein Netzwerk aus Eingabe- und Ausgabeschicht mit beliebig vielen
+	 * versteckten Schichten.
 	 * 
 	 * @param inputCount
 	 *            die Anzahl der Neuronen in der Eingabeschicht
 	 * @param hiddenCount
-	 *            die Anzahl und Neuronen in den versteckten Schichten
+	 *            die Anzahl und Neuronen in den versteckten Schichten; jeder
+	 *            Index vom Array ist eine versteckte Schicht
 	 * @param outputCount
+	 *            die Anzahl der Neuronen in der Ausgabeschicht
 	 */
 	public Network(final int inputCount, final int[] hiddenCount, final int outputCount) {
 		if (1 > inputCount) {
@@ -79,6 +82,14 @@ public class Network {
 		return x;
 	}
 
+	/**
+	 * Erstellt eine Schicht mit Neuronen die zur Ausgabe oder als versteckte
+	 * Schicht genutz werden kann.
+	 * 
+	 * @param count
+	 *            die Anzahl der Neuronen
+	 * @return ein Array, niemals <code>null</code>
+	 */
 	private WorkingNeuron[] createWorkingNeurons(final int count) {
 		WorkingNeuron[] x = new WorkingNeuron[count];
 		for (int idx = 0; idx < count; idx++) {
@@ -87,6 +98,15 @@ public class Network {
 		return x;
 	}
 
+	/**
+	 * Verbindet jedes Neuronen von <code>left</code> mit jedem Neuron von
+	 * <code>right</code>.
+	 * 
+	 * @param left
+	 *            die Neuronen-Quelle
+	 * @param right
+	 *            das Neuronen-Ziel
+	 */
 	private void connect(final Neuron[] left, final WorkingNeuron[] right) {
 		for (Neuron l : left) {
 			for (WorkingNeuron r : right) {
@@ -95,19 +115,19 @@ public class Network {
 		}
 	}
 
+	/**
+	 * Setzt den aktuellen Wert eines Eingabeneurons.
+	 * 
+	 * @param index
+	 *            der Index vom Neuron innerhalb der Eingabeschicht
+	 * @param value
+	 *            der Wert
+	 */
 	public void setInput(final int index, final double value) {
 		if (index < 0 || index >= input.length) {
 			throw new IllegalArgumentException("index out auf range");
 		}
 		input[index].setValue(value);
-	}
-
-	public double[] getResult() {
-		final double[] result = new double[output.length];
-		for (int idx = 0; idx < output.length; idx++) {
-			result[idx] = output[idx].getOutput();
-		}
-		return result;
 	}
 
 	/**

@@ -35,7 +35,9 @@ public class Trainer {
 	 *            die Lernrate
 	 */
 	public void doIt(final double m) {
-		// die Trainigsdaten
+		// die Trainigsdaten:
+		// [[0.1, 0.0], [0.2, 0.0], [0.3, 0.0]]
+		// Eingabewert + erwarteter Ausgabewert
 		final double[][] data = training.getData();
 
 		// die Ausgabeschicht
@@ -46,21 +48,30 @@ public class Trainer {
 		do {
 			training.startLoop(loop);
 
+			// die Summe der lokalen Fehler
+			// geteilt durch die Anzahl der Trainingssätze
 			globalError = 0.0;
+
 			for (int trainIndex = 0; trainIndex < data.length; trainIndex++) {
+				// Eingabe setzen
 				final double x = data[trainIndex][0];
 				network.setInput(0, x);
-				final double[] result = network.getResult();
-				for (int resultIndex = 0; resultIndex < result.length; resultIndex++) {
-					final double actual = result[resultIndex];
+
+				for (int outputIndex = 0; outputIndex < output.length; outputIndex++) {
+					// aktuelles Ergebnis
+					final double actual = output[outputIndex].getOutput();
+					// erwartetes Ergebnis
 					final double y = data[trainIndex][1];
+
+					// Fehler in diesem Trainingsdatensatz
 					final double localError = y - actual;
+					// ...und über alle Trainingssätze
 					globalError += localError;
 
 					training.showData(loop, trainIndex, actual, localError);
 
-					final Set<Connection> connecttions = output[resultIndex].getInput();
-
+					// Gewichte zur aktuellen Ausgabe neubesetzen
+					final Set<Connection> connecttions = output[outputIndex].getInput();
 					for (Connection c : connecttions) {
 						final double oldWeight = c.getWeight();
 						final double newWeight = oldWeight + localError * m * x;
@@ -74,12 +85,16 @@ public class Trainer {
 
 			if (loop >= auto) {
 				final int lines = training.getAutoLines(globalError);
-				auto = loop + lines;
+				if (-1 < lines) {
+					auto = loop + lines;
+				} else {
+					auto = -1;
+				}
 			}
 
 			loop++;
 
-		} while (globalError > training.getGlobalErrorStop());
+		} while (globalError > training.getGlobalErrorStop() && auto > -1);
 
 		training.stopTrainer();
 
@@ -121,6 +136,9 @@ public class Trainer {
 		 */
 		double getGlobalErrorStop();
 
+		/**
+		 * Signalisiert das Trainingsende.
+		 */
 		void stopTrainer();
 
 	}
