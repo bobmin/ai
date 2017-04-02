@@ -13,3 +13,5 @@ cd ai/nn/
 ant
 java -cp dist/lib/nn-*.jar bob.demo.SimpleDemo
 ``` 
+
+Mit "git pull" das Verzeichnis ggf. aktualisieren.
