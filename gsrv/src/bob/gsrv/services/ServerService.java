@@ -4,13 +4,13 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
-@Path("/gsrv")
-public class GsrvService {
+@Path("/server")
+public class ServerService {
 
 	@GET
 	@Produces("text/plain")
-	public String getStatus() {
-		return "gsrv...";
+	public String getServerStatus() {
+		return "server...";
 	}
 
 }
