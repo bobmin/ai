@@ -5,6 +5,25 @@ Ein Server mit REST-Schnittstellen zum Betrieb der KI im Netzwerk.
 * https://addons.mozilla.org/de/firefox/addon/restclient/
 * http://www.codingpedia.org/ama/how-to-test-a-rest-api-from-command-line-with-curl/
 
+## API
+
+> /player ........... Spielerübersicht
+> /player/1 ......... Spieler 1
+> /game ............. Spieleübersicht
+> /game/1 ........... Spiel 1
+> /game/1/field ..... Übersicht vom Spielbrett des ersten Spiels
+> /game/1/field/1 ... das erste Spielfeld beim ersten Spiel
+
+Bei Übersichten erfolgt mit **PUT** eine Neuanlage.
+
+Mit **POST** werden die Einträge geändert.
+
+Die Standardrepräsentation werden mit JSON beschrieben.
+
+# Tic-Tac-Toe
+
+https://de.wikipedia.org/wiki/Tic-Tac-Toe
+
 # nn
 
 * https://github.com/WilliamOnVoyage/NeuralNetwork
