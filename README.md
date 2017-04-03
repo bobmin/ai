@@ -1,3 +1,5 @@
+Experimente mit künstlicher Intelligenz auf der Grundlage von rundenbasierenden Brettspielen
+
 # gsrv
 
 Ein Server mit REST-Schnittstellen zum Betrieb der KI im Netzwerk.
