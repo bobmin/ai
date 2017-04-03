@@ -1,3 +1,10 @@
+# gsrv
+
+Ein Server mit REST-Schnittstellen zum Betrieb der KI im Netzwerk.
+
+* https://addons.mozilla.org/de/firefox/addon/restclient/
+* http://www.codingpedia.org/ama/how-to-test-a-rest-api-from-command-line-with-curl/
+
 # nn
 
 * https://github.com/WilliamOnVoyage/NeuralNetwork
