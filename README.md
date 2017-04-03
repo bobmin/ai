@@ -7,12 +7,14 @@ Ein Server mit REST-Schnittstellen zum Betrieb der KI im Netzwerk.
 
 ## API
 
-> /player ........... Spielerübersicht
-> /player/1 ......... Spieler 1
-> /game ............. Spieleübersicht
-> /game/1 ........... Spiel 1
-> /game/1/field ..... Übersicht vom Spielbrett des ersten Spiels
-> /game/1/field/1 ... das erste Spielfeld beim ersten Spiel
+```
+/player ........... Spielerübersicht
+/player/1 ......... Spieler 1
+/game ............. Spieleübersicht
+/game/1 ........... Spiel 1
+/game/1/field ..... Übersicht vom Spielbrett des ersten Spiels
+/game/1/field/1 ... das erste Spielfeld beim ersten Spiel
+```
 
 Bei Übersichten erfolgt mit **PUT** eine Neuanlage.
 
