@@ -1,5 +1,7 @@
 Experimente mit künstlicher Intelligenz auf der Grundlage von rundenbasierenden Brettspielen
 
+https://help.github.com/articles/basic-writing-and-formatting-syntax/
+
 # gsrv
 
 Ein Server mit REST-Schnittstellen zum Betrieb der KI im Netzwerk.
