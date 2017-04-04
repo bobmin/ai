@@ -9,12 +9,12 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import javax.xml.bind.JAXBElement;
 
 import bob.gsrv.dao.PlayerDao;
 import bob.gsrv.model.Player;
@@ -25,13 +25,36 @@ public class PlayerService {
 	@Context
 	UriInfo uriInfo;
 
-	@GET
-	@Produces("text/plain")
-	public String getPlayers() {
-		return "players...";
+	/** der Speicher für die Spieler */
+	private final PlayerDao dao = new PlayerDao();
+
+	public PlayerService() {
 	}
 
-	@POST
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	public Response getPlayers(@QueryParam("n") String name) {
+		if (null == name) {
+			throw new WebApplicationException(Response.Status.BAD_REQUEST);
+		}
+		final Player player = dao.search(name);
+		if (null == player) {
+			final String txt = String.format("name \"%s\" not found", name);
+			return Response.noContent().entity(txt).build();
+		} else {
+			final int id = player.getId();
+			final URI uri = uriInfo.getAbsolutePathBuilder().path(String.valueOf(id)).build();
+			final String txt = String.format("name \"%s\" found with id %d", name, id);
+			return Response.ok().location(uri).entity(txt).build();
+		}
+	}
+
+	/**
+	 * Erstellt einen neuen Spieler mit Standardwerten.
+	 * 
+	 * @return ein Objekt, niemals <code>null</code>
+	 */
+	@PUT
 	public Response createPlayer() {
 		final PlayerDao dao = new PlayerDao();
 		final Player x = dao.create();
@@ -51,17 +74,16 @@ public class PlayerService {
 		return x;
 	}
 
-	@PUT
+	@POST
+	@Path("/{id: [0-9]+}")
 	@Consumes(MediaType.APPLICATION_XML)
-	public Response setPlayer(JAXBElement<Player> x) {
-		final Player p = x.getValue();
-		final PlayerDao dao = new PlayerDao();
-		final Player u = dao.search(p.getId());
-		if (null == u) {
+	public Response setPlayer(@PathParam("id") int id, Player p) {
+		final Player x = dao.search(id);
+		if (null == x) {
 			return Response.status(Response.Status.NOT_FOUND).build();
 		}
-		u.setName(p.getName());
-		final URI uri = uriInfo.getAbsolutePathBuilder().path(String.valueOf(p.getId())).build();
+		x.setName(p.getName());
+		final URI uri = uriInfo.getAbsolutePathBuilder().path(String.valueOf(id)).build();
 		return Response.status(Response.Status.ACCEPTED).contentLocation(uri).build();
 	}
 

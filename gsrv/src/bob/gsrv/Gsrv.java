@@ -28,7 +28,7 @@ public class Gsrv {
 	public static void main(String[] args) throws IOException {
 		HttpServer httpServer = startServer();
 		System.out.println(String.format("Jersey app started with WADL available at "
-				+ "%sapplication.wadl\nTry out %sgsrv\nHit enter to stop it...", BASE_URI, BASE_URI));
+				+ "%sapplication.wadl\nTry out %sserver\nHit enter to stop it...", BASE_URI, BASE_URI));
 		System.in.read();
 		httpServer.stop();
 	}
