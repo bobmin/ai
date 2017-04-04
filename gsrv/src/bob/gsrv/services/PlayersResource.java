@@ -19,8 +19,8 @@ import javax.ws.rs.core.UriInfo;
 import bob.gsrv.dao.PlayerDao;
 import bob.gsrv.model.Player;
 
-@Path("/player")
-public class PlayerService {
+@Path("/players")
+public class PlayersResource {
 
 	@Context
 	UriInfo uriInfo;
@@ -28,11 +28,11 @@ public class PlayerService {
 	/** der Speicher für die Spieler */
 	private final PlayerDao dao = new PlayerDao();
 
-	public PlayerService() {
+	public PlayersResource() {
 	}
 
 	@GET
-	@Produces(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_XML)
 	public Response getPlayers(@QueryParam("n") String name) {
 		if (null == name) {
 			throw new WebApplicationException(Response.Status.BAD_REQUEST);
@@ -42,11 +42,21 @@ public class PlayerService {
 			final String txt = String.format("name \"%s\" not found", name);
 			return Response.noContent().entity(txt).build();
 		} else {
-			final int id = player.getId();
-			final URI uri = uriInfo.getAbsolutePathBuilder().path(String.valueOf(id)).build();
-			final String txt = String.format("name \"%s\" found with id %d", name, id);
-			return Response.ok().location(uri).entity(txt).build();
+			final URI uri = uriInfo.getAbsolutePathBuilder().path(String.valueOf(player.getId())).build();
+			return Response.ok().location(uri).entity(player).build();
 		}
+	}
+
+	@GET
+	@Path("/{id: [0-9]+}")
+	@Produces(MediaType.APPLICATION_XML)
+	public Response getPlayer(@PathParam("id") int id) {
+		final PlayerDao dao = new PlayerDao();
+		final Player x = dao.search(id);
+		if (null == x) {
+			throw new WebApplicationException(Response.Status.NOT_FOUND);
+		}
+		return Response.ok().entity(x).build();
 	}
 
 	/**
@@ -54,37 +64,38 @@ public class PlayerService {
 	 * 
 	 * @return ein Objekt, niemals <code>null</code>
 	 */
-	@PUT
+	@POST
 	public Response createPlayer() {
 		final PlayerDao dao = new PlayerDao();
 		final Player x = dao.create();
-		final URI uri = uriInfo.getAbsolutePathBuilder().path(String.valueOf(x.getId())).build();
-		return Response.created(uri).build();
+		final int id = x.getId();
+		final URI uri = uriInfo.getAbsolutePathBuilder().path(String.valueOf(id)).build();
+		final String txt = String.format("player %d created", id);
+		return Response.created(uri).entity(txt).build();
 	}
 
-	@GET
-	@Path("/{id: [0-9]+}")
-	@Produces(MediaType.APPLICATION_XML)
-	public Player getPlayer(@PathParam("id") int id) {
-		final PlayerDao dao = new PlayerDao();
-		final Player x = dao.search(id);
-		if (null == x) {
-			throw new WebApplicationException(Response.Status.NOT_FOUND);
-		}
-		return x;
-	}
-
-	@POST
-	@Path("/{id: [0-9]+}")
+	/**
+	 * Aktualisiert einen Spieler.
+	 * 
+	 * @param p
+	 *            die Spielerdaten
+	 * @return ein Objekt, niemals <code>null</code>
+	 */
+	@PUT
 	@Consumes(MediaType.APPLICATION_XML)
-	public Response setPlayer(@PathParam("id") int id, Player p) {
-		final Player x = dao.search(id);
+	public Response updatePlayer(Player p) {
+		if (null == p) {
+			throw new WebApplicationException(Response.Status.BAD_REQUEST);
+		}
+		final Player x = dao.search(p.getId());
 		if (null == x) {
 			return Response.status(Response.Status.NOT_FOUND).build();
 		}
 		x.setName(p.getName());
+		final int id = p.getId();
 		final URI uri = uriInfo.getAbsolutePathBuilder().path(String.valueOf(id)).build();
-		return Response.status(Response.Status.ACCEPTED).contentLocation(uri).build();
+		final String txt = String.format("player %d updated", id);
+		return Response.status(Response.Status.ACCEPTED).contentLocation(uri).entity(txt).build();
 	}
 
 }
