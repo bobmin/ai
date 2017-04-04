@@ -13,8 +13,10 @@ Ein Server mit REST-Schnittstellen zum Betrieb der KI im Netzwerk.
 ## API
 
 ```
-/player ........... Spielerübersicht
-/player/1 ......... Spieler 1
+GET  /player?name=xxx .. Spielernamen suchen
+PUT  /player ........... Spieler hinzufügen
+GET  /player/1 ......... Spieler anzeigen
+POST /player/1 ......... Spieler aktualisieren
 /game ............. Spieleübersicht
 /game/1 ........... Spiel 1
 /game/1/field ..... Übersicht vom Spielbrett des ersten Spiels
