@@ -7,6 +7,8 @@ https://help.github.com/articles/basic-writing-and-formatting-syntax/
 Ein Server mit REST-Schnittstellen zum Betrieb der KI im Netzwerk.
 
 * https://jersey.java.net/documentation/1.19.1/getting-started.html
+* http://www.tutorialspoint.com/restful/restful_quick_guide.htm
+* http://www.codingpedia.org/ama/tutorial-rest-api-design-and-implementation-in-java-with-jersey-and-spring/
 * https://addons.mozilla.org/de/firefox/addon/restclient/
 * http://www.codingpedia.org/ama/how-to-test-a-rest-api-from-command-line-with-curl/
 
