@@ -1,11 +1,11 @@
 package bob.demo;
 
+import java.util.List;
 import java.util.Scanner;
 
-import bob.nn.Network;
-import bob.nn.Printer;
-import bob.nn.Trainer;
-import bob.nn.Trainer.Training;
+import bob.nn.InputNeuron;
+import bob.nn.Layer;
+import bob.nn.SimpleTrainer;
 import bob.nn.WorkingNeuron;
 
 /**
@@ -14,11 +14,22 @@ import bob.nn.WorkingNeuron;
  * @author bobmin
  *
  */
-public class SimpleDemo implements Training {
+public class SimpleDemo extends AbstractDemo {
 
 	/** die Trainingsdaten */
-	private static final double[][] TRAIN = { { 0.1, 0.0 }, { 0.2, 0.0 }, { 0.3, 0.0 }, { 0.4, 1.0 }, { 0.5, 1.0 },
-			{ 0.6, 1.0 }, { 0.7, 1.0 }, { 0.8, 1.0 }, { 0.9, 1.0 } };
+	// @formatter:off
+	private static final double[][][] TRAIN = { 
+			{ { 0.1 }, { 0.0 } }, 
+			{ { 0.2 }, { 0.0 } }, 
+			{ { 0.3 }, { 0.0 } }, 
+			{ { 0.4 }, { 1.0 } }, 
+			{ { 0.5 }, { 1.0 } },
+			{ { 0.6 }, { 1.0 } }, 
+			{ { 0.7 }, { 1.0 } }, 
+			{ { 0.8 }, { 1.0 } }, 
+			{ { 0.9 }, { 1.0 } } 
+	};
+	// formatter:on
 
 	/** learning rate */
 	private static final double m = 0.7;
@@ -26,17 +37,8 @@ public class SimpleDemo implements Training {
 	/** bias */
 	private static final double b = 1.0;
 
-	/** der Trenner innerhalb der Konsole */
-	private static final String SEPARATOR = "------------------------------------------------------------";
-
-	/** die formatierte Konsolenausgabe des Netzwerks */
-	private final Printer printer;
-
-	/** das Netzwerk */
-	private final Network network;
-
 	/** das Training */
-	private final Trainer trainer;
+	private final SimpleTrainer trainer;
 
 	/**
 	 * die Konsoleneingabe
@@ -62,19 +64,23 @@ public class SimpleDemo implements Training {
 	 * Instanziiert eine einfache Demo zu den verschiedenen Klassen im Paket.
 	 */
 	private SimpleDemo() {
-		network = new Network(1, new int[] {}, 1);
+		super(1, false, new int[] {}, new boolean[] {}, 1);
 
-		printer = new Printer(System.out);
+		printer.text("Ein Eingabe- und ein Ausgabeneuron lernen ab 0.4 den Zustand \"ja\" einzunehmen.");
+		printer.text("Das \"ja\" entspricht einem Ausgangspegel von 1.");
+		printer.text("Zuerst startet die Lernphase. Im Anschluss kann das Netz befragt werden.");
+		printer.separator();
+
 		printer.print(network);
 
 		scanner = new Scanner(System.in);
 
-		trainer = new Trainer(network, this);
+		trainer = new SimpleTrainer(network, this);
 		trainer.doIt(m);
 
 		scanner.close();
 
-		System.out.println(SEPARATOR);
+		printer.separator();
 		System.out.println("BYE!");
 
 	}
@@ -86,9 +92,8 @@ public class SimpleDemo implements Training {
 	 * @return eine Zeichenkette oder <code>null</code>
 	 */
 	private int frageBenutzer() {
-		System.out.println(SEPARATOR);
-
-		System.out.print("lines, (p)rint, (t)est, (e)xit: ");
+		printer.separator();
+		printer.text("lines, (p)rint, (t)est, (e)xit: ");
 
 		int antwort = 0;
 
@@ -108,25 +113,35 @@ public class SimpleDemo implements Training {
 	}
 
 	private void testeNetzwerk() {
-		System.out.println("input or (e)xit: ");
+		printer.text("input or (e)xit: ");
 		String testLine = null;
+
+		final Layer<InputNeuron> inputLayer = network.getInputLayer();
+		final int inputLenght = inputLayer.getNeurons().size();
+
 		int intputIndex = 0;
+		double[] inputValues = new double[inputLenght];
+
 		do {
-			System.out.println(SEPARATOR);
-			System.out.print(String.format("Input[%d]: ", intputIndex));
+			printer.separator();
+			printer.text(String.format("Input[%d]: ", intputIndex));
 			testLine = scanner.nextLine();
 
 			if (testLine.matches("[\\d\\.]+")) {
-				network.setInput(intputIndex, Double.parseDouble(testLine));
+				inputValues[intputIndex] = Double.parseDouble(testLine);
 				intputIndex++;
 			}
 
-			if (intputIndex >= network.getInputNeurons().length) {
-				final WorkingNeuron[] outputNeurons = network.getOutputNeurons();
-				for (int outputIndex = 0; outputIndex < outputNeurons.length; outputIndex++) {
-					final double outputValue = outputNeurons[outputIndex].getOutput();
-					System.out.println(String.format("Output[%d] = %f", outputIndex, outputValue));
+			if (intputIndex >= inputLenght) {
+				// rechnen
+				network.activate(inputValues);
+				// ausgeben
+				final List<WorkingNeuron> outputNeurons = network.getOutputLayer().getNeurons();
+				for (int outputIndex = 0; outputIndex < outputNeurons.size(); outputIndex++) {
+					final double outputValue = outputNeurons.get(outputIndex).getValue();
+					printer.text(String.format("Output[%d] = %f", outputIndex, outputValue));
 				}
+				// neustarten
 				intputIndex = 0;
 			}
 
@@ -134,24 +149,24 @@ public class SimpleDemo implements Training {
 	}
 
 	@Override
-	public double[][] getData() {
+	public double[][][] getData() {
 		return TRAIN;
 	}
 
 	@Override
 	public void startLoop(int loop) {
-		System.out.println(SEPARATOR);
+		printer.separator();
 	}
 
 	@Override
 	public void showData(final int loop, final int index, final double actual, final double localError) {
-		System.out.printf("TRAIN[%d][%d]: x = %.1f, y = %.1f, actual = %.3f, error = %f%n", loop, index,
-				TRAIN[index][0], TRAIN[index][1], actual, localError);
+		printer.text("TRAIN[%d][%d]: x = %.1f, y = %.1f, actual = %.3f, error = %f%n", loop, index, TRAIN[index][0][0],
+				TRAIN[index][1][0], actual, localError);
 	}
 
 	@Override
 	public void finishLoop(final int loop, final double globalError) {
-		System.out.println(SEPARATOR);
+		printer.separator();
 		System.out.printf("global error: %f%n", globalError);
 	}
 
@@ -167,9 +182,9 @@ public class SimpleDemo implements Training {
 
 	@Override
 	public void stopTrainer() {
-		System.out.println(SEPARATOR);
+		printer.separator();
 		printer.print(network);
-		System.out.println(SEPARATOR);
+		printer.separator();
 		testeNetzwerk();
 	}
 

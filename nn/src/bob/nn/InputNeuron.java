@@ -1,19 +1,28 @@
 package bob.nn;
 
+/**
+ * Beim Eingabeneuron wird dessen Wert manuell gesetzt und es wird keine
+ * Aktivierung angewendet.
+ * 
+ * @author bobmin
+ *
+ */
 public class InputNeuron extends Neuron {
 
-	private double value = 0.0;
-
+	/**
+	 * Instanziiert das Objekt.
+	 */
 	public InputNeuron() {
 	}
 
-	public void setValue(final double value) {
-		this.value = value;
-	}
-
-	@Override
-	public double getOutput() {
-		return value;
+	/**
+	 * Setzt den Wert vor Aktivierung.
+	 * 
+	 * @param value
+	 *            der neue Wert vor Aktivierung
+	 */
+	public void setValue(final double newValue) {
+		this.value = newValue;
 	}
 
 }

@@ -1,6 +1,6 @@
 package bob.nn;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -16,86 +16,66 @@ public class Network {
 	/** der Logger */
 	private static final Logger LOG = Logger.getLogger(Network.class.getName());
 
-	/** die Eingabeschicht */
-	private final InputNeuron[] input;
+	/** die Neuronen der Eingabeschicht */
+	private final Layer<InputNeuron> inputLayer;
 
 	/** die versteckten Schichten: Index = Schichtnummer */
-	private final List<WorkingNeuron[]> hidden;
+	private final List<Layer<WorkingNeuron>> hiddenLayers;
 
 	/** die Ausgabeschicht */
-	private final WorkingNeuron[] output;
+	private final Layer<WorkingNeuron> outputLayer;
 
 	/**
 	 * Erstellt ein Netzwerk aus Eingabe- und Ausgabeschicht mit beliebig vielen
-	 * versteckten Schichten.
+	 * versteckten Schichten. Sind die Bias-Einstellungen aktiviert, wird in der
+	 * jeweiligen Schicht ein zusätzlicher Bias erzeugt.
 	 * 
 	 * @param inputCount
 	 *            die Anzahl der Neuronen in der Eingabeschicht
+	 * @param inputBias
+	 *            die Bias-Option zur Einagbeschicht
 	 * @param hiddenCount
 	 *            die Anzahl und Neuronen in den versteckten Schichten; jeder
 	 *            Index vom Array ist eine versteckte Schicht
+	 * @param hiddenBias
+	 *            die Bias-Option für die versteckten Schichten; ohne Angabe
+	 *            wird kein Bias erzeugt
 	 * @param outputCount
 	 *            die Anzahl der Neuronen in der Ausgabeschicht
 	 */
-	public Network(final int inputCount, final int[] hiddenCount, final int outputCount) {
+	public Network(final int inputCount, final boolean inputBias, final int[] hiddenCount, final boolean[] hiddenBias,
+			final int outputCount) {
 		if (1 > inputCount) {
 			throw new IllegalArgumentException("inputCount < 1");
 		}
 		if (1 > outputCount) {
 			throw new IllegalArgumentException("outputCount < 1");
 		}
+
 		// die Eingabeschicht
-		input = createInputLayer(inputCount);
+		inputLayer = new Layer<>(inputCount, InputNeuron.class, inputBias);
+
 		// die versteckten Schichten
-		hidden = new LinkedList<>();
+		hiddenLayers = new ArrayList<Layer<WorkingNeuron>>(hiddenCount.length);
 		for (int idx = 0; idx < hiddenCount.length; idx++) {
-			WorkingNeuron[] x = createWorkingNeurons(hiddenCount[idx]);
+			final boolean bias = (idx >= hiddenBias.length ? false : hiddenBias[idx]);
+			Layer<WorkingNeuron> x = new Layer<>(hiddenCount[idx], WorkingNeuron.class, bias);
+
 			if (0 == idx) {
-				connect(input, x);
+				connect(inputLayer, x);
 			} else {
-				WorkingNeuron[] left = hidden.get(idx - 1);
-				connect(left, x);
+				connect(hiddenLayers.get(idx - 1), x);
 			}
-			hidden.add(x);
+			hiddenLayers.add(x);
 		}
+
 		// die Ausgabeschicht
-		output = createWorkingNeurons(outputCount);
+		outputLayer = new Layer(outputCount, WorkingNeuron.class, false);
 		if (0 == hiddenCount.length) {
-			connect(input, output);
+			connect(inputLayer, outputLayer);
 		} else {
-			connect(hidden.get(hidden.size() - 1), output);
+			connect(hiddenLayers.get(hiddenLayers.size() - 1), outputLayer);
 		}
-	}
-
-	/**
-	 * Erstellt die Eingabeschicht.
-	 * 
-	 * @param count
-	 *            die Anzahl der Neuronen
-	 * @return ein Array, niemals <code>null</code>
-	 */
-	private InputNeuron[] createInputLayer(final int count) {
-		InputNeuron[] x = new InputNeuron[count];
-		for (int idx = 0; idx < count; idx++) {
-			x[idx] = new InputNeuron();
-		}
-		return x;
-	}
-
-	/**
-	 * Erstellt eine Schicht mit Neuronen die zur Ausgabe oder als versteckte
-	 * Schicht genutz werden kann.
-	 * 
-	 * @param count
-	 *            die Anzahl der Neuronen
-	 * @return ein Array, niemals <code>null</code>
-	 */
-	private WorkingNeuron[] createWorkingNeurons(final int count) {
-		WorkingNeuron[] x = new WorkingNeuron[count];
-		for (int idx = 0; idx < count; idx++) {
-			x[idx] = new WorkingNeuron();
-		}
-		return x;
 	}
 
 	/**
@@ -107,27 +87,19 @@ public class Network {
 	 * @param right
 	 *            das Neuronen-Ziel
 	 */
-	private void connect(final Neuron[] left, final WorkingNeuron[] right) {
-		for (Neuron l : left) {
-			for (WorkingNeuron r : right) {
-				r.putInput(l);
+	private void connect(final Layer<? extends Neuron> leftLayer, final Layer<? extends Neuron> rightLayer) {
+		final List<? extends Neuron> leftNeurons = leftLayer.getNeurons();
+		final List<? extends Neuron> rightNeurons = rightLayer.getNeurons();
+		for (Neuron r : rightNeurons) {
+			if (r instanceof WorkingNeuron) {
+				for (Neuron l : leftNeurons) {
+					((WorkingNeuron) r).putInput(l);
+				}
+				if (leftLayer.hasBias()) {
+					((WorkingNeuron) r).putInput(leftLayer.getBias());
+				}
 			}
 		}
-	}
-
-	/**
-	 * Setzt den aktuellen Wert eines Eingabeneurons.
-	 * 
-	 * @param index
-	 *            der Index vom Neuron innerhalb der Eingabeschicht
-	 * @param value
-	 *            der Wert
-	 */
-	public void setInput(final int index, final double value) {
-		if (index < 0 || index >= input.length) {
-			throw new IllegalArgumentException("index out auf range");
-		}
-		input[index].setValue(value);
 	}
 
 	/**
@@ -135,8 +107,8 @@ public class Network {
 	 * 
 	 * @return ein Array, niemals <code>null</code>
 	 */
-	public InputNeuron[] getInputNeurons() {
-		return input;
+	public Layer<InputNeuron> getInputLayer() {
+		return inputLayer;
 	}
 
 	/**
@@ -145,8 +117,8 @@ public class Network {
 	 * 
 	 * @return ein Objekt, niemals <code>null</code>
 	 */
-	public List<WorkingNeuron[]> getHiddenNeurons() {
-		return hidden;
+	public List<Layer<WorkingNeuron>> getHiddenLayers() {
+		return hiddenLayers;
 	}
 
 	/**
@@ -154,8 +126,37 @@ public class Network {
 	 * 
 	 * @return ein Array, niemals <code>null</code>
 	 */
-	public WorkingNeuron[] getOutputNeurons() {
-		return output;
+	public Layer<WorkingNeuron> getOutputLayer() {
+		return outputLayer;
+	}
+
+	/**
+	 * Setzt die aktuellen Werte für die Eingabeschicht und aktiviert das
+	 * gesamte Netzwerk.
+	 * 
+	 * @param values
+	 *            die neuen Eingabewerte
+	 */
+	public void activate(final double[] inputValues) {
+		// Eingabewerte setzen
+		List<InputNeuron> inputNeurons = inputLayer.getNeurons();
+		for (int inputIndex = 0; inputIndex < inputValues.length; inputIndex++) {
+			final InputNeuron inputNeuron = inputNeurons.get(inputIndex);
+			inputNeuron.setValue(inputValues[inputIndex]);
+		}
+		// alle Neuronen aktivieren
+		for (Layer<WorkingNeuron> layer : hiddenLayers) {
+			activateLayer(layer);
+		}
+		activateLayer(outputLayer);
+	}
+
+	private void activateLayer(final Layer<WorkingNeuron> layer) {
+		for (Neuron n : layer.getNeurons()) {
+			if (n instanceof WorkingNeuron) {
+				((WorkingNeuron) n).activate();
+			}
+		}
 	}
 
 }
