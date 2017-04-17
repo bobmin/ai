@@ -37,6 +37,7 @@ https://de.wikipedia.org/wiki/Tic-Tac-Toe
 
 # nn
 
+* http://cs231n.github.io/optimization-2/
 * https://github.com/WilliamOnVoyage/NeuralNetwork
 * https://github.com/andrey9594/NeuronNetwork
 
