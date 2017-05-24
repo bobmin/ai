@@ -51,6 +51,6 @@ ant
 java -cp dist/nn-*.jar bob.demo.SimpleDemo
 ``` 
 
-Mit dem Befehl "git pull" das Verzeichnis ggf. aktualisieren und erneut "ant" aufrufen. 
+Mit dem Befehl "git pull" im Verzeichnis "ai" ggf. aktualisieren und erneut "ant" aufrufen. 
 
 Der Befehl "ant clean" löscht die Verzeichnisse "build" und "dist".
