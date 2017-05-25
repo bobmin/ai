@@ -17,13 +17,13 @@ public class Network {
 	private static final Logger LOG = Logger.getLogger(Network.class.getName());
 
 	/** die Neuronen der Eingabeschicht */
-	private final Layer<InputNeuron> inputLayer;
+	private final InputLayer inputLayer;
 
 	/** die versteckten Schichten: Index = Schichtnummer */
-	private final List<Layer<WorkingNeuron>> hiddenLayers;
+	private final List<WorkingLayer> hiddenLayers;
 
 	/** die Ausgabeschicht */
-	private final Layer<WorkingNeuron> outputLayer;
+	private final WorkingLayer outputLayer;
 
 	/**
 	 * Erstellt ein Netzwerk aus Eingabe- und Ausgabeschicht mit beliebig vielen
@@ -53,14 +53,13 @@ public class Network {
 		}
 
 		// die Eingabeschicht
-		inputLayer = new Layer<>(inputCount, InputNeuron.class, inputBias);
+		inputLayer = new InputLayer(inputCount, inputBias);
 
 		// die versteckten Schichten
-		hiddenLayers = new ArrayList<Layer<WorkingNeuron>>(hiddenCount.length);
+		hiddenLayers = new ArrayList<WorkingLayer>(hiddenCount.length);
 		for (int idx = 0; idx < hiddenCount.length; idx++) {
 			final boolean bias = (idx >= hiddenBias.length ? false : hiddenBias[idx]);
-			Layer<WorkingNeuron> x = new Layer<>(hiddenCount[idx], WorkingNeuron.class, bias);
-
+			WorkingLayer x = new WorkingLayer(hiddenCount[idx], bias);
 			if (0 == idx) {
 				connect(inputLayer, x);
 			} else {
@@ -70,7 +69,7 @@ public class Network {
 		}
 
 		// die Ausgabeschicht
-		outputLayer = new Layer(outputCount, WorkingNeuron.class, false);
+		outputLayer = new WorkingLayer(outputCount, false);
 		if (0 == hiddenCount.length) {
 			connect(inputLayer, outputLayer);
 		} else {
@@ -87,9 +86,9 @@ public class Network {
 	 * @param right
 	 *            das Neuronen-Ziel
 	 */
-	private void connect(final Layer<? extends Neuron> leftLayer, final Layer<? extends Neuron> rightLayer) {
-		final List<? extends Neuron> leftNeurons = leftLayer.getNeurons();
-		final List<? extends Neuron> rightNeurons = rightLayer.getNeurons();
+	private void connect(final AbstractLayer leftLayer, final AbstractLayer rightLayer) {
+		final List<Neuron> leftNeurons = leftLayer.getNeurons();
+		final List<Neuron> rightNeurons = rightLayer.getNeurons();
 		for (Neuron r : rightNeurons) {
 			if (r instanceof WorkingNeuron) {
 				for (Neuron l : leftNeurons) {
@@ -107,7 +106,7 @@ public class Network {
 	 * 
 	 * @return ein Array, niemals <code>null</code>
 	 */
-	public Layer<InputNeuron> getInputLayer() {
+	public InputLayer getInputLayer() {
 		return inputLayer;
 	}
 
@@ -117,7 +116,7 @@ public class Network {
 	 * 
 	 * @return ein Objekt, niemals <code>null</code>
 	 */
-	public List<Layer<WorkingNeuron>> getHiddenLayers() {
+	public List<WorkingLayer> getHiddenLayers() {
 		return hiddenLayers;
 	}
 
@@ -126,7 +125,7 @@ public class Network {
 	 * 
 	 * @return ein Array, niemals <code>null</code>
 	 */
-	public Layer<WorkingNeuron> getOutputLayer() {
+	public WorkingLayer getOutputLayer() {
 		return outputLayer;
 	}
 
@@ -145,13 +144,13 @@ public class Network {
 			inputNeuron.setValue(inputValues[inputIndex]);
 		}
 		// alle Neuronen aktivieren
-		for (Layer<WorkingNeuron> layer : hiddenLayers) {
+		for (WorkingLayer layer : hiddenLayers) {
 			activateLayer(layer);
 		}
 		activateLayer(outputLayer);
 	}
 
-	private void activateLayer(final Layer<WorkingNeuron> layer) {
+	private void activateLayer(final WorkingLayer layer) {
 		for (Neuron n : layer.getNeurons()) {
 			if (n instanceof WorkingNeuron) {
 				((WorkingNeuron) n).activate();

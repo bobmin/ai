@@ -58,7 +58,7 @@ public class Printer {
 		}
 		// die versteckten Schichten
 		out.println("HIDDEN:");
-		List<Layer<WorkingNeuron>> hiddenMap = net.getHiddenLayers();
+		List<WorkingLayer> hiddenMap = net.getHiddenLayers();
 		for (int idx = 0; idx < hiddenMap.size(); idx++) {
 			out.println("\tLAYER[" + idx + "]");
 			final List<WorkingNeuron> neurons = hiddenMap.get(idx).getNeurons();

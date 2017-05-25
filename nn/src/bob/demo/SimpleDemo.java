@@ -3,8 +3,7 @@ package bob.demo;
 import java.util.List;
 import java.util.Scanner;
 
-import bob.nn.InputNeuron;
-import bob.nn.Layer;
+import bob.nn.InputLayer;
 import bob.nn.SimpleTrainer;
 import bob.nn.WorkingNeuron;
 
@@ -116,7 +115,7 @@ public class SimpleDemo extends AbstractDemo {
 		printer.text("input or (e)xit: ");
 		String testLine = null;
 
-		final Layer<InputNeuron> inputLayer = network.getInputLayer();
+		final InputLayer inputLayer = network.getInputLayer();
 		final int inputLenght = inputLayer.getNeurons().size();
 
 		int intputIndex = 0;

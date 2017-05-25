@@ -3,6 +3,7 @@ package bob.demo;
 import java.util.List;
 import java.util.Set;
 
+import bob.nn.BackpropagationTrainer;
 import bob.nn.Connection;
 import bob.nn.WorkingNeuron;
 
@@ -14,6 +15,9 @@ public class BackpropagationDemo extends AbstractDemo {
 			{ { 0.7, 0.6 }, { 0.9, 0.2 } } 
 	};
 	// formatter:on
+	
+	/** das Training */
+	private final BackpropagationTrainer trainer;
 
 	public static void main(String[] args) {
 		new BackpropagationDemo();
@@ -37,6 +41,9 @@ public class BackpropagationDemo extends AbstractDemo {
 		printer.separator();
 
 		printer.print(network);
+		
+		trainer = new BackpropagationTrainer(network, this);
+		trainer.doIt();
 
 		printer.separator();
 		printer.text("BYE!");

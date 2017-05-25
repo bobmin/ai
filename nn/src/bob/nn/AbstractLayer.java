@@ -3,13 +3,16 @@ package bob.nn;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Layer<T extends Neuron> {
+public abstract class AbstractLayer<T extends Neuron> {
 
 	private final List<T> neurons;
 
 	private BiasNeuron bias = null;
 
-	public Layer(final int count, Class<T> neuronClass, final boolean useBias) {
+	public AbstractLayer(final int count, final Class<T> neuronClass, final boolean useBias) {
+		if (1 > count) {
+			throw new IllegalArgumentException("[count] cannot be less than 1");
+		}
 		neurons = new ArrayList<>(count);
 		for (int idx = 0; idx < count; idx++) {
 			try {
@@ -19,7 +22,7 @@ public class Layer<T extends Neuron> {
 			}
 		}
 		if (useBias) {
-			bias = new BiasNeuron();
+			this.bias = new BiasNeuron();
 		}
 	}
 
