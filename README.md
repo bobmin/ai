@@ -37,19 +37,24 @@ https://de.wikipedia.org/wiki/Tic-Tac-Toe
 
 # nn
 
+* http://cs231n.github.io/optimization-2/
 * https://github.com/WilliamOnVoyage/NeuralNetwork
 * https://github.com/andrey9594/NeuronNetwork
 
-## SimpleDemo
+## Getting started
 
 ```shell
 mkdir bobmin_ai_demo && cd bobmin_ai_demo
 git clone https://github.com/bobmin/ai
 cd ai/nn/
 ant
-java -cp dist/nn-*.jar bob.demo.SimpleDemo
+java -cp dist/nn-*.jar bob.demo.XyzDemo
 ``` 
 
-Mit dem Befehl "git pull" das Verzeichnis ggf. aktualisieren und erneut "ant" aufrufen. 
+Der Befehl "git pull" im Verzeichnis "ai" aktualisiert die lokale Kopie und der Aufruf "ant" im Verzeichnis "nn" übersetzt die Quellen. 
 
-Der Befehl "ant clean" löscht die Verzeichnisse "build" und "dist".
+Mit "ant clean" werden die Verzeichnisse "build" und "dist" gelöscht.
+
+## SimpleDemo
+
+## BackpropagationDemo
