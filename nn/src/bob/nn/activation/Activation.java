@@ -19,6 +19,22 @@ public abstract class Activation {
 		return name;
 	}
 
+	/**
+	 * Berechnet die Funktion zum Wert.
+	 * 
+	 * @param value
+	 *            der Wert
+	 * @return eine Zahl
+	 */
 	abstract public double computeFunction(final double value);
+
+	/**
+	 * Berechnet die erste Ableitung zur Funktion.
+	 * 
+	 * @param value
+	 *            der Wert
+	 * @return eine Zahl
+	 */
+	abstract public double revertFunction(final double value);
 
 }

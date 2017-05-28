@@ -65,7 +65,7 @@ public class SimpleTrainer {
 				final double[] trainOutputs = data[trainIndex][1];
 
 				// Eingabe setzen + Netzwerk berechnen
-				network.activate(trainInputs);
+				network.forward(trainInputs);
 
 				// Ausgabe prüfen + Gewichte aktualisieren
 				for (int outputIndex = 0; outputIndex < output.size(); outputIndex++) {
@@ -82,9 +82,9 @@ public class SimpleTrainer {
 					training.showData(loop, trainIndex, actual, localError);
 
 					// Gewichte zur aktuellen Ausgabe neubesetzen
-					final Neuron n = output.get(outputIndex);
+					final AbstractNeuron n = output.get(outputIndex);
 					if (n instanceof WorkingNeuron) {
-						final Set<Connection> connecttions = ((WorkingNeuron) n).getInputs();
+						final Set<Connection> connecttions = ((WorkingNeuron) n).getIncoming();
 						for (Connection c : connecttions) {
 							final double value = c.getLeftNeuron().getValue();
 							final double oldWeight = c.getWeight();

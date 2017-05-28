@@ -133,7 +133,7 @@ public class SimpleDemo extends AbstractDemo {
 
 			if (intputIndex >= inputLenght) {
 				// rechnen
-				network.activate(inputValues);
+				network.forward(inputValues);
 				// ausgeben
 				final List<WorkingNeuron> outputNeurons = network.getOutputLayer().getNeurons();
 				for (int outputIndex = 0; outputIndex < outputNeurons.size(); outputIndex++) {

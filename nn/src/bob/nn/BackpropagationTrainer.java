@@ -18,7 +18,7 @@ public class BackpropagationTrainer {
 
 		for (double[][] d : data) {
 
-			network.activate(d[0]);
+			network.forward(d[0]);
 
 			backwardPass();
 

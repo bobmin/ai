@@ -1,11 +1,7 @@
 package bob.demo;
 
-import java.util.List;
-import java.util.Set;
-
 import bob.nn.BackpropagationTrainer;
-import bob.nn.Connection;
-import bob.nn.WorkingNeuron;
+import bob.nn.activation.SigmoidActivation;
 
 public class BackpropagationDemo extends AbstractDemo {
 
@@ -26,36 +22,42 @@ public class BackpropagationDemo extends AbstractDemo {
 	public BackpropagationDemo() {
 		super(2, true, new int[] { 2 }, new boolean[] { true }, 2);
 
-		final List<WorkingNeuron> hiddenNeurons = network.getHiddenLayers().get(0).getNeurons();
-		setWeights(hiddenNeurons.get(0), 0.3, 0.8, 0.5);
-		setWeights(hiddenNeurons.get(1), -0.2, -0.6, 0.7);
-
-		final List<WorkingNeuron> outputNeurons = network.getOutputLayer().getNeurons();
-		setWeights(outputNeurons.get(0), 0.2, 0.4, 0.3);
-		setWeights(outputNeurons.get(1), 0.1, -0.4, 0.9);
-
 		printer.text("Zwei Eingabe- und zwei Ausgabeneuronen lernen über zwei versteckten Neuronen");
 		printer.text("ein definierte Ergebnis. In der Eingabeschicht und der versteckte Schicht");
 		printer.text("existiert zusätzlich ein BIAS.");
 		printer.text("Zuerst startet die Lernphase. Im Anschluss kann das Netz befragt werden.");
 		printer.separator();
 
+		network.getHiddenLayer(0).getNeuron(0).setActivation(new SigmoidActivation());
+		network.getHiddenLayer(0).getNeuron(0).setIncomingWeights(0.3,  0.8, 0.5);
+		network.getHiddenLayer(0).getNeuron(1).setActivation(new SigmoidActivation());
+		network.getHiddenLayer(0).getNeuron(1).setIncomingWeights(-0.2, -0.6, 0.7);
+
+		network.getOutputLayer().getNeuron(0).setActivation(new SigmoidActivation());
+		network.getOutputLayer().getNeuron(0).setIncomingWeights(0.2, 0.4, 0.3);
+		network.getOutputLayer().getNeuron(1).setActivation(new SigmoidActivation());
+		network.getOutputLayer().getNeuron(1).setIncomingWeights(0.1, -0.4, 0.9);
+
+		// Netzwerk berechnen
+		
+		network.forward(0.7, 0.6);
 		printer.print(network);
+		
+		// Gwichte justieren
+		
+		printer.separator();
+		printer.showError(network, 0.2, 0.9);
+
+		// printer.separator();
+		// network.backward(0.2, 0.9);
+		// printer.print(network);
+		
 		
 		trainer = new BackpropagationTrainer(network, this);
 		trainer.doIt();
 
 		printer.separator();
 		printer.text("BYE!");
-	}
-
-	private void setWeights(final WorkingNeuron n, double... values) {
-		final Set<Connection> connections = n.getInputs();
-		int idx = 0;
-		for (Connection c : connections) {
-			c.setWeight(values[idx]);
-			idx++;
-		}
 	}
 
 	// --- Training ----------------------------------------------------------

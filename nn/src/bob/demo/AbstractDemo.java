@@ -1,6 +1,7 @@
 package bob.demo;
 
 import bob.nn.Network;
+import bob.nn.NetworkBuilder;
 import bob.nn.Printer;
 import bob.nn.Training;
 
@@ -14,7 +15,15 @@ public abstract class AbstractDemo implements Training {
 
 	public AbstractDemo(final int inputCount, final boolean inputBias, final int[] hiddenCount,
 			final boolean[] hiddenBias, final int outputCount) {
-		network = new Network(inputCount, inputBias, hiddenCount, hiddenBias, outputCount);
+		final NetworkBuilder builder = new NetworkBuilder();
+		builder.initInputLayer(inputCount, inputBias);
+		builder.initHiddenLayers(hiddenCount.length);
+		for (int idx = 0; idx < hiddenCount.length; idx++) {
+			final boolean useBias = (idx < hiddenBias.length ? hiddenBias[idx] : false);
+			builder.initHiddenLayer(hiddenCount[idx], useBias);
+		}
+		builder.initOutputLayer(outputCount);
+		network = builder.createNetwork();
 	}
 
 }

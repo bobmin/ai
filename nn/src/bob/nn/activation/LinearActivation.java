@@ -11,4 +11,9 @@ public class LinearActivation extends Activation {
 		return value;
 	}
 
+	@Override
+	public double revertFunction(double value) {
+		throw new UnsupportedOperationException();
+	}
+
 }

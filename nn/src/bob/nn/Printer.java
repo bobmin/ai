@@ -1,6 +1,8 @@
 package bob.nn;
 
 import java.io.PrintStream;
+import java.util.Deque;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -49,40 +51,90 @@ public class Printer {
 	public void print(final Network net) {
 		// die Eingabeschicht
 		out.println("INPUT:");
+		if (net.getInputLayer().hasBias()) {
+			print(out, "\t", net.getInputLayer().getBias());
+		}
 		final List<InputNeuron> input = net.getInputLayer().getNeurons();
 		for (InputNeuron n : input) {
 			out.println("\t" + n);
 		}
-		if (net.getInputLayer().hasBias()) {
-			print(out, "\t", net.getInputLayer().getBias());
-		}
 		// die versteckten Schichten
-		out.println("HIDDEN:");
-		List<WorkingLayer> hiddenMap = net.getHiddenLayers();
-		for (int idx = 0; idx < hiddenMap.size(); idx++) {
-			out.println("\tLAYER[" + idx + "]");
-			final List<WorkingNeuron> neurons = hiddenMap.get(idx).getNeurons();
-			for (Neuron n : neurons) {
-				print(out, "\t\t", n);
+		final Deque<WorkingLayer> hiddenMap = net.getHiddenLayers();
+		int idx = 0;
+		final Iterator<WorkingLayer> it = hiddenMap.iterator();
+		while (it.hasNext()) {
+			WorkingLayer hiddenLayer = it.next();
+			out.println("HIDDEN[" + idx + "]:");
+			if (hiddenLayer.hasBias()) {
+				print(out, "\t", hiddenLayer.getBias());
 			}
-			if (hiddenMap.get(idx).hasBias()) {
-				print(out, "\t\t", hiddenMap.get(idx).getBias());
+			final List<WorkingNeuron> neurons = hiddenLayer.getNeurons();
+			for (AbstractNeuron n : neurons) {
+				print(out, "\t", n);
 			}
 		}
 		// die Ausgabeschicht
 		out.println("OUTPUT:");
 		final List<WorkingNeuron> output = net.getOutputLayer().getNeurons();
-		for (Neuron n : output) {
+		for (AbstractNeuron n : output) {
 			print(out, "\t", n);
 		}
 	}
 
-	private void print(final PrintStream out, final String margin, final Neuron n) {
+	private void print(final PrintStream out, final String margin, final AbstractNeuron n) {
 		out.println(margin + n);
 		if (n instanceof WorkingNeuron) {
-			final Set<Connection> connections = ((WorkingNeuron) n).getInputs();
+			final Set<Connection> connections = ((WorkingNeuron) n).getIncoming();
 			for (Connection c : connections) {
 				out.println(margin + "\t" + c);
+			}
+		}
+	}
+
+	public void showError(Network network, double... expected) {
+		final WorkingLayer outputLayer = network.getOutputLayer();
+		if (expected.length != outputLayer.getSizeWithoutBias()) {
+			throw new IllegalArgumentException("[expected] are not correct");
+		}
+
+		// Ausgabeschicht
+		out.println("id  val    f'     exp    out    d");
+		final List<WorkingNeuron> neurons = outputLayer.getNeurons();
+		double[] outputDelta = new double[neurons.size()];
+		final int size = outputLayer.getSizeWithoutBias();
+		for (int idx = 0; idx < expected.length; idx++) {
+			final WorkingNeuron n = neurons.get(size - idx - 1);
+			final double output = n.getOutput();
+			final double r = n.getActivation().revertFunction(output);
+			outputDelta[idx] = r * (expected[idx] - output);
+			out.printf("%2d %6.3f %6.3f %6.3f %6.3f %6.3f%n", n.getId(), n.getValue(), r, expected[idx], output,
+					outputDelta[idx]);
+		}
+
+		// versteckte Schichten
+		out.println("id  val    f'");
+		final Iterator<WorkingLayer> it = network.getHiddenLayers().descendingIterator();
+		while (it.hasNext()) {
+			final WorkingLayer layer = it.next();
+			final List<WorkingNeuron> hiddenNeurons = layer.getNeurons();
+			final int hiddenSize = hiddenNeurons.size();
+			for (int idx = (hiddenSize - 1); idx >= 0; idx--) {
+				final WorkingNeuron n = hiddenNeurons.get(idx);
+				final double output = n.getOutput();
+				final double r = n.getActivation().revertFunction(output);
+				out.printf("%2d %6.3f %6.3f   exp    out    d%n", n.getId(), n.getValue(), r);
+				final Set<Connection> outgoing = n.getOutgoing();
+				int outputIndex = outputDelta.length - 1;
+				double sumHiddenDelta = 0.0;
+				for (Connection o : outgoing) {
+					final double delta = outputDelta[outputIndex];
+					final double hiddenDelta = delta * o.getWeight();
+					out.printf("                  %6.3f %6.3f %6.3f%n", delta, o.getWeight(), hiddenDelta);
+					sumHiddenDelta += hiddenDelta;
+					outputIndex--;
+				}
+				out.printf("                       sum(d) = %6.3f%n", sumHiddenDelta);
+				out.printf("                  f' * sum(d) = %6.3f%n", (r * sumHiddenDelta));
 			}
 		}
 	}

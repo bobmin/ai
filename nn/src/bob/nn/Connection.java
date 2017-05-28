@@ -11,20 +11,31 @@ import java.util.Objects;
 public class Connection {
 
 	/** das Quellneuron */
-	private final Neuron source;
+	private final AbstractNeuron leftNeuron;
+
+	/** das Zielneuron */
+	private final WorkingNeuron rightNeuron;
 
 	/** die Gewichtung */
 	private double weight = Math.random();
 
+	private double value = Double.NaN;
+
+	private double output = Double.NaN;
+
 	/**
 	 * Instanziiert das Objekt mit einem zufälligem Gewicht.
 	 * 
-	 * @param source
+	 * @param leftNeuron
 	 *            das Quellneuron
+	 * @param rightNeuron
+	 *            das Zielneuron
 	 */
-	public Connection(final Neuron source) {
-		Objects.requireNonNull(source);
-		this.source = source;
+	public Connection(final AbstractNeuron leftNeuron, final WorkingNeuron rightNeuron) {
+		Objects.requireNonNull(leftNeuron);
+		Objects.requireNonNull(rightNeuron);
+		this.leftNeuron = leftNeuron;
+		this.rightNeuron = rightNeuron;
 	}
 
 	/**
@@ -32,8 +43,17 @@ public class Connection {
 	 * 
 	 * @return ein Objekt, niemals <code>null</code>
 	 */
-	public Neuron getLeftNeuron() {
-		return source;
+	public AbstractNeuron getLeftNeuron() {
+		return leftNeuron;
+	}
+
+	/**
+	 * Liefert das Zielneuron.
+	 * 
+	 * @return ein Objekt, niemals <code>null</code>
+	 */
+	public WorkingNeuron getRightNeuron() {
+		return rightNeuron;
 	}
 
 	/**
@@ -46,6 +66,10 @@ public class Connection {
 		this.weight = value;
 	}
 
+	public void adjustWeight(double d) {
+		weight = (leftNeuron.getOutput() * d);
+	}
+
 	/**
 	 * Liefert die aktuelle Gewichtung.
 	 * 
@@ -55,9 +79,16 @@ public class Connection {
 		return weight;
 	}
 
+	public double computeOutput() {
+		value = leftNeuron.getOutput();
+		output = value * weight;
+		return output;
+	}
+
 	@Override
 	public String toString() {
-		return String.format("%s [neuron = %d, weight = %f]", this.getClass().getName(), source.getId(), weight);
+		return String.format("%s [neuron = %d, value = %.3f, weight = %.3f, output = %.3f]", this.getClass().getName(),
+				leftNeuron.getId(), value, weight, output);
 	}
 
 }

@@ -1,8 +1,5 @@
 package bob.nn;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 import bob.nn.activation.Activation;
 import bob.nn.activation.LinearActivation;
 
@@ -14,15 +11,16 @@ import bob.nn.activation.LinearActivation;
  * @author bobmin
  *
  */
-public class WorkingNeuron extends Neuron {
-
-	/** die gewichteten Eingänge */
-	private final Set<Connection> connections = new LinkedHashSet<>();
+public class WorkingNeuron extends AbstractNeuron {
 
 	/** die Aktivierungsfunktion */
 	private Activation activation = new LinearActivation();
 
+	/** der Wert nach Aktivierung */
 	private double output = Double.NaN;
+
+	/** die Fehlerkorrektur */
+	private double delta = Double.NaN;
 
 	public WorkingNeuron() {
 	}
@@ -37,27 +35,27 @@ public class WorkingNeuron extends Neuron {
 		this.activation = fkt;
 	}
 
-	/**
-	 * Fügt einen Eingang mit zufälligem Gewicht hinzu.
-	 * 
-	 * @param source
-	 *            das Quellneuron
-	 */
-	public void putInput(final Neuron source) {
-		connections.add(new Connection(source));
+	public Activation getActivation() {
+		return activation;
 	}
 
-	public double getOutput() {
-		return output;
+	public void setIncomingWeights(double... values) {
+		int idx = 0;
+		for (Connection c : incoming) {
+			c.setWeight(values[idx]);
+			idx++;
+		}
 	}
 
-	/**
-	 * Liefert die gewichteten Eingänge.
-	 * 
-	 * @return ein Object, niemals <code>null</code>
-	 */
-	public Set<Connection> getInputs() {
-		return connections;
+	public void adjustIncomingWeights(double d) {
+		this.delta = d;
+		for (Connection c : incoming) {
+			c.adjustWeight(d);
+		}
+	}
+
+	public double getDelta() {
+		return delta;
 	}
 
 	/**
@@ -66,16 +64,22 @@ public class WorkingNeuron extends Neuron {
 	 */
 	public void activate() {
 		this.value = 0;
-		for (Connection c : connections) {
-			this.value += (c.getWeight() * c.getLeftNeuron().getValue());
+		for (Connection c : incoming) {
+			this.value += c.computeOutput();
 		}
 		output = activation.computeFunction(this.value);
 	}
 
 	@Override
+	public double getOutput() {
+		return output;
+	}
+
+	@Override
 	public String toString() {
-		return String.format("%s [id = %d, value = %s, activation = %s, output = %s]", this.getClass().getName(),
-				getId(), Double.toString(getValue()), activation.getName(), Double.toString(output));
+		return String.format("%s [id = %d, inout = %d/%d, value = %.3f, activation = %s, output = %.3f, delta = %.3f]",
+				this.getClass().getName(), getId(), incoming.size(), outgoing.size(), getValue(), activation.getName(),
+				output, delta);
 	}
 
 }

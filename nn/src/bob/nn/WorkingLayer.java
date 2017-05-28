@@ -6,4 +6,10 @@ public class WorkingLayer extends AbstractLayer<WorkingNeuron> {
 		super(count, WorkingNeuron.class, useBias);
 	}
 
+	public void activate() {
+		for (WorkingNeuron n : neurons) {
+			n.activate();
+		}
+	}
+
 }
