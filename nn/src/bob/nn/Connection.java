@@ -1,6 +1,7 @@
 package bob.nn;
 
 import java.util.Objects;
+import java.util.logging.Logger;
 
 /**
  * Ein gewichtete Verbindung zu einem Neuron.
@@ -9,6 +10,9 @@ import java.util.Objects;
  *
  */
 public class Connection {
+
+	/** der Logger */
+	private static final Logger LOG = Logger.getLogger(Connection.class.getName());
 
 	/** das Quellneuron */
 	private final AbstractNeuron leftNeuron;
@@ -66,8 +70,18 @@ public class Connection {
 		this.weight = value;
 	}
 
+	/**
+	 * Rechnet die Abweichung (delta W) vom aktuellen Gewicht aus und korrigiert
+	 * es.
+	 * 
+	 * @param d
+	 */
 	public void adjustWeight(double d) {
-		weight = (leftNeuron.getOutput() * d);
+		final double oldWeight = weight;
+		final double deltaWeight = leftNeuron.getOutput() * d;
+		weight += deltaWeight;
+		LOG.fine(String.format("%d|%d (%.3f * %.3f) + %.3f = %.3f", leftNeuron.getId(), rightNeuron.getId(),
+				leftNeuron.getOutput(), d, oldWeight, weight));
 	}
 
 	/**

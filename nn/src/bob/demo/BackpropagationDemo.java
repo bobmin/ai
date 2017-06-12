@@ -48,9 +48,9 @@ public class BackpropagationDemo extends AbstractDemo {
 		printer.separator();
 		printer.showError(network, 0.2, 0.9);
 
-		// printer.separator();
-		// network.backward(0.2, 0.9);
-		// printer.print(network);
+		printer.separator();
+		network.backward(0.2, 0.9);
+		printer.print(network);
 		
 		
 		trainer = new BackpropagationTrainer(network, this);
