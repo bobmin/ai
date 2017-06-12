@@ -60,3 +60,6 @@ Mit "ant clean" werden die Verzeichnisse "build" und "dist" gelöscht.
 ## SimpleDemo
 
 ## BackpropagationDemo
+
+* [https://youtu.be/YIqYBxpv53A Neuronale Netze - Backpropagation - Forwardpass]
+* [https://youtu.be/EAtQCut6Qno Neuronale Netze - Backpropagation - Backwardpass]
