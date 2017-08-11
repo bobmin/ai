@@ -1,32 +1,45 @@
 package bob.demo;
 
-import bob.nn.BackpropagationTrainer;
+import bob.nn.Network;
+import bob.nn.NetworkBuilder;
+import bob.nn.Printer;
 import bob.nn.activation.SigmoidActivation;
 
-public class BackpropagationDemo extends AbstractDemo {
+public class BackpropagationDemo {
 
-	/** die Trainingsdaten */
 	// @formatter:off
+	/** 
+	 * die Trainingsdaten
+	 * -- {
+	 * -- -- { Eingabe }, 
+	 * -- -- { Ausgabe }
+	 * -- } 
+	 */
 	private static final double[][][] TRAIN = { 
-			{ { 0.7, 0.6 }, { 0.9, 0.2 } } 
+			{ 
+			  { 0.7, 0.6 }, 
+			  { 0.9, 0.2 } 
+			} 
 	};
 	// formatter:on
 	
-	/** das Training */
-	private final BackpropagationTrainer trainer;
-
+	/** die formatierte Konsolenausgabe des Netzwerks */
+	private final Printer printer;
+	
 	public static void main(String[] args) {
 		new BackpropagationDemo();
 	}
 
 	public BackpropagationDemo() {
-		super(2, true, new int[] { 2 }, new boolean[] { true }, 2);
+		printer = new Printer(System.out);
 
 		printer.text("Zwei Eingabe- und zwei Ausgabeneuronen lernen über zwei versteckten Neuronen");
 		printer.text("ein definierte Ergebnis. In der Eingabeschicht und der versteckte Schicht");
 		printer.text("existiert zusätzlich ein BIAS.");
 		printer.text("Zuerst startet die Lernphase. Im Anschluss kann das Netz befragt werden.");
 		printer.separator();
+		
+		final Network network = initNetwork();
 
 		network.getHiddenLayer(0).getNeuron(0).setActivation(new SigmoidActivation());
 		network.getHiddenLayer(0).getNeuron(0).setIncomingWeights(0.3,  0.8, 0.5);
@@ -53,54 +66,21 @@ public class BackpropagationDemo extends AbstractDemo {
 		printer.print(network);
 		
 		
-		trainer = new BackpropagationTrainer(network, this);
-		trainer.doIt();
-
 		printer.separator();
 		printer.text("BYE!");
 	}
 
-	// --- Training ----------------------------------------------------------
-
-	@Override
-	public double[][][] getData() {
-		return TRAIN;
+	/**
+	 * Erstellt das Netzwerk zur Demo.
+	 * @return ein Objekt, niemals <code>null</code>
+	 */
+	private Network initNetwork() {
+		final NetworkBuilder builder = new NetworkBuilder();
+		builder.initInputLayer(2, true);
+		builder.initHiddenLayers(1);
+		builder.initHiddenLayer(2, true);
+		builder.initOutputLayer(2);
+		return builder.createNetwork();
 	}
-
-	@Override
-	public void startLoop(int loop) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void showData(int loop, int index, double actual, double localError) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void finishLoop(int loop, double globalError) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public int getAutoLines(double globalError) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public double getGlobalErrorStop() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public void stopTrainer() {
-		// TODO Auto-generated method stub
-
-	}
-
+	
 }

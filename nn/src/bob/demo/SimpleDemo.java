@@ -4,7 +4,11 @@ import java.util.List;
 import java.util.Scanner;
 
 import bob.nn.InputLayer;
+import bob.nn.Network;
+import bob.nn.NetworkBuilder;
+import bob.nn.Printer;
 import bob.nn.SimpleTrainer;
+import bob.nn.Training;
 import bob.nn.WorkingNeuron;
 
 /**
@@ -13,7 +17,7 @@ import bob.nn.WorkingNeuron;
  * @author bobmin
  *
  */
-public class SimpleDemo extends AbstractDemo {
+public class SimpleDemo implements Training {
 
 	/** die Trainingsdaten */
 	// @formatter:off
@@ -36,6 +40,12 @@ public class SimpleDemo extends AbstractDemo {
 	/** bias */
 	private static final double b = 1.0;
 
+	/** die formatierte Konsolenausgabe des Netzwerks */
+	private final Printer printer;
+	
+	/** das Netzwerk */
+	private final Network network;
+	
 	/** das Training */
 	private final SimpleTrainer trainer;
 
@@ -63,12 +73,14 @@ public class SimpleDemo extends AbstractDemo {
 	 * Instanziiert eine einfache Demo zu den verschiedenen Klassen im Paket.
 	 */
 	private SimpleDemo() {
-		super(1, false, new int[] {}, new boolean[] {}, 1);
+		printer = new Printer(System.out);
 
 		printer.text("Ein Eingabe- und ein Ausgabeneuron lernen ab 0.4 den Zustand \"ja\" einzunehmen.");
 		printer.text("Das \"ja\" entspricht einem Ausgangspegel von 1.");
 		printer.text("Zuerst startet die Lernphase. Im Anschluss kann das Netz befragt werden.");
 		printer.separator();
+
+		network = initNetwork();
 
 		printer.print(network);
 
@@ -82,6 +94,18 @@ public class SimpleDemo extends AbstractDemo {
 		printer.separator();
 		System.out.println("BYE!");
 
+	}
+
+	/**
+	 * Erstellt das Netzwerk zur Demo.
+	 * 
+	 * @return ein Objekt, niemals <code>null</code>
+	 */
+	private Network initNetwork() {
+		final NetworkBuilder builder = new NetworkBuilder();
+		builder.initInputLayer(1, false);
+		builder.initOutputLayer(1);
+		return builder.createNetwork();
 	}
 
 	/**

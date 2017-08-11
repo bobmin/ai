@@ -4,12 +4,21 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
 
+/**
+ * Erstellt kontrolliert ein Netzwerk.
+ * 
+ * @author maik@btmx.net
+ *
+ */
 public class NetworkBuilder {
 
+	/** die Eingabeschicht */
 	private InputLayer inputLayer = null;
 
+	/** die versteckten Schichten */
 	private Deque<WorkingLayer> hiddenLayers = null;
 
+	/** die Ausgabeschicht */
 	private WorkingLayer outputLayer = null;
 
 	public NetworkBuilder() {
