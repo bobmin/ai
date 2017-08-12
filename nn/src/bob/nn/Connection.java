@@ -80,7 +80,7 @@ public class Connection {
 		final double oldWeight = weight;
 		final double deltaWeight = leftNeuron.getOutput() * d;
 		weight += deltaWeight;
-		LOG.fine(String.format("%d|%d (%.3f * %.3f) + %.3f = %.3f", leftNeuron.getId(), rightNeuron.getId(),
+		LOG.fine(String.format("%d|%d (%+.3f * %+.3f) + %+.3f = %+.3f", leftNeuron.getId(), rightNeuron.getId(),
 				leftNeuron.getOutput(), d, oldWeight, weight));
 	}
 
@@ -101,7 +101,8 @@ public class Connection {
 
 	@Override
 	public String toString() {
-		return String.format("%s [neuron = %d, value = %.3f, weight = %.3f, output = %.3f]", this.getClass().getName(),
+		return String.format("%s [neuron = %d, value = %+.3f, weight = %+.3f, output = %+.3f]",
+				this.getClass().getName(),
 				leftNeuron.getId(), value, weight, output);
 	}
 

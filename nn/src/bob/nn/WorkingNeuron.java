@@ -77,7 +77,8 @@ public class WorkingNeuron extends AbstractNeuron {
 
 	@Override
 	public String toString() {
-		return String.format("%s [id = %d, inout = %d/%d, value = %.3f, activation = %s, output = %.3f, delta = %.3f]",
+		return String.format(
+				"%s [id = %d, inout = %d/%d, value = %+.3f, activation = %s, output = %+.3f, delta = %+.3f]",
 				this.getClass().getName(), getId(), incoming.size(), outgoing.size(), getValue(), activation.getName(),
 				output, delta);
 	}

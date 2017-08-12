@@ -107,7 +107,7 @@ public class Printer {
 			final double output = n.getOutput();
 			final double r = n.getActivation().revertFunction(output);
 			outputDelta[idx] = r * (expected[idx] - output);
-			out.printf("%2d %6.3f %6.3f %6.3f %6.3f %6.3f%n", n.getId(), n.getValue(), r, expected[idx], output,
+			out.printf("%2d %+6.3f %+6.3f %+6.3f %+6.3f %+6.3f%n", n.getId(), n.getValue(), r, expected[idx], output,
 					outputDelta[idx]);
 		}
 
@@ -122,19 +122,19 @@ public class Printer {
 				final WorkingNeuron n = hiddenNeurons.get(idx);
 				final double output = n.getOutput();
 				final double r = n.getActivation().revertFunction(output);
-				out.printf("%2d %6.3f %6.3f   exp    out    d%n", n.getId(), n.getValue(), r);
+				out.printf("%2d %+6.3f %+6.3f   exp    out    d%n", n.getId(), n.getValue(), r);
 				final Set<Connection> outgoing = n.getOutgoing();
 				int outputIndex = outputDelta.length - 1;
 				double sumHiddenDelta = 0.0;
 				for (Connection o : outgoing) {
 					final double delta = outputDelta[outputIndex];
 					final double hiddenDelta = delta * o.getWeight();
-					out.printf("                  %6.3f %6.3f %6.3f%n", delta, o.getWeight(), hiddenDelta);
+					out.printf("                  %+6.3f %+6.3f %+6.3f%n", delta, o.getWeight(), hiddenDelta);
 					sumHiddenDelta += hiddenDelta;
 					outputIndex--;
 				}
-				out.printf("                       sum(d) = %6.3f%n", sumHiddenDelta);
-				out.printf("                  f' * sum(d) = %6.3f%n", (r * sumHiddenDelta));
+				out.printf("                       sum(d) = %+6.3f%n", sumHiddenDelta);
+				out.printf("                  f' * sum(d) = %+6.3f%n", (r * sumHiddenDelta));
 			}
 		}
 	}
