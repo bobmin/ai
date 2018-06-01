@@ -35,8 +35,8 @@ Die Standardrepräsentation werden mit JSON beschrieben.
 
 # Tic-Tac-Toe
 
-https://de.wikipedia.org/wiki/Tic-Tac-Toe
-https://blog.codecentric.de/en/2018/01/gamma-tictactoe-neural-network-machine-learning-simple-game/
+* https://de.wikipedia.org/wiki/Tic-Tac-Toe
+* https://blog.codecentric.de/en/2018/01/gamma-tictactoe-neural-network-machine-learning-simple-game/
 
 # nn
 
