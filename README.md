@@ -43,6 +43,7 @@ Die Standardrepräsentation werden mit JSON beschrieben.
 * http://cs231n.github.io/optimization-2/
 * https://github.com/WilliamOnVoyage/NeuralNetwork
 * https://github.com/andrey9594/NeuronNetwork
+* [Convolutional Neural Networks with Deeplearning4j](https://aboullaite.me/cnn-dl4j/)
 
 ## Getting started
 
