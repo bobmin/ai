@@ -56,7 +56,7 @@ public class BackpropagationDemo {
 		network.forward(0.7, 0.6);
 		printer.print(network);
 		
-		// Gwichte justieren
+		// Gewichte justieren
 		
 		printer.separator();
 		printer.showError(network, 0.2, 0.9);
