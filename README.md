@@ -67,3 +67,7 @@ Mit "ant clean" werden die Verzeichnisse "build" und "dist" gelöscht.
 * [Neuronale Netze - Backpropagation - Backwardpass](https://youtu.be/EAtQCut6Qno)
 * [Create an artificial neural network using the Neuroph Java framework](https://blog.codecentric.de/en/2018/01/gamma-tictactoe-neural-network-machine-learning-simple-game/)
 * [Implementing an Artificial Neural Network in Pure Java](https://medium.com/coinmonks/implementing-an-artificial-neural-network-in-pure-java-no-external-dependencies-975749a38114)
+
+# fxg
+
+* [Introduction to JavaFX for Game Development](https://gamedevelopment.tutsplus.com/tutorials/introduction-to-javafx-for-game-development--cms-23835)
