@@ -6,4 +6,8 @@ public class BobContext {
 
     public BobVector mouse = new BobVector(0, 0);
 
+    public boolean pause = false;
+
+    public boolean debug = false;
+
 }

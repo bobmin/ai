@@ -57,8 +57,8 @@ public class BobEngine extends Application {
 
         theScene.setOnMouseClicked(new EventHandler<MouseEvent>() {
             public void handle(MouseEvent e) {
-                context.mouse.x = (int) e.getX();
-                context.mouse.y = (int) e.getY();
+                context.mouse.setX(e.getX());
+                context.mouse.setY(e.getY());
             }
         });
 
@@ -75,22 +75,36 @@ public class BobEngine extends Application {
         new AnimationTimer() {
             public void handle(long currentNanoTime) {                
                 double t = (currentNanoTime - startNanoTime) / 1000000000.0;
-
+                                
                 gc.clearRect(0, 0, context.WIDTH, context.HEIGHT);
-
-                double x = 232 + 128 * Math.cos(t);
-                double y = 232 + 128 * Math.sin(t);
-
+                
                 // background image clears canvas
                 // gc.drawImage(earth, x, y);
-
-                sketch.update(context);
+                
+                if (!context.pause) {
+                    sketch.update(context);
+                }
                 sketch.draw(context, gc);
 
                 reset(gc);
-                String footer = "Debug: ON";
-                gc.fillText(footer, 10, context.HEIGHT - 10);
+
+                // Rahmen
+                gc.strokeRect(0, 0, context.WIDTH, context.HEIGHT);
+
+
+                // Fußzeile
+                StringBuffer footer = new StringBuffer();
+                footer.append("Pause: ").append(context.pause ? "ON" : "OFF");
+                footer.append("  ");
+                footer.append("Debug: ").append(context.debug ? "ON" : "OFF");
+                gc.fillText(footer.toString(), 10, context.HEIGHT - 10);
                 // gc.strokeText(footer, 10, context.HEIGHT - 10);
+
+                if (input.contains("P")) {
+                    context.pause = !context.pause;
+                    input.remove("P");
+                }
+
             }
         }.start();
 
@@ -101,7 +115,7 @@ public class BobEngine extends Application {
         Font theFont = Font.font( "Helvetica", FontWeight.BOLD, 16);
         gc.setFont( theFont );
         gc.setFill( Color.GRAY);
-        gc.setStroke( Color.LIGHTGRAY);
+        gc.setStroke( Color.LIGHTGREY);
         gc.setLineWidth(1);
     }
 
