@@ -1,3 +1,5 @@
+package bob.fxg;
+
 public class BobUtil {
 
     public static int random(int min, int max) {

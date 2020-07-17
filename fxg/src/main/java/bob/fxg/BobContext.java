@@ -1,3 +1,5 @@
+package bob.fxg;
+
 public class BobContext {
 
     public int WIDTH = 600;

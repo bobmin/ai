@@ -1,3 +1,5 @@
+package bob.fxg;
+
 /**
  * Ein Punkt im 2D-Raum.
  * 

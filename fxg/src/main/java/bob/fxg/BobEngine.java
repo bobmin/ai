@@ -1,3 +1,5 @@
+package bob.fxg;
+
 import java.util.ArrayList;
 import java.util.List;
 
