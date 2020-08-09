@@ -10,10 +10,10 @@ import com.sun.javafx.tk.Toolkit;
 
 public class BobMover {
 
-    private static final double MAX_SPEED = 25d;
-    
     private final String name;
-
+    
+    private final double maxSpeed;
+    
     private final BobVector position;
     
     private final BobVector velocity;
@@ -22,10 +22,11 @@ public class BobMover {
 
     private final BobVector lastAcceleration;
 
-    public BobMover(String name, int x, int y) {
+    public BobMover(String name, int x, int y, double maxSpeed) {
         this.name = name;
+        this.maxSpeed = maxSpeed;
         position = new BobVector(x, y);
-        velocity = new BobVector(BobUtil.random(5), BobUtil.random(5));
+        velocity = new BobVector(0, 0);
         acceleration = new BobVector(0, 0);
         lastAcceleration = new BobVector(0, 0);
     }
@@ -37,9 +38,9 @@ public class BobMover {
     public void moveWithin(int width, int height) {
         // Objekt bewegen
         velocity.add(acceleration);
-        if (velocity.magnitude() > MAX_SPEED) {
+        if (velocity.magnitude() > maxSpeed) {
             velocity.normalize();
-            velocity.multiply(MAX_SPEED);
+            velocity.multiply(maxSpeed);
         }
         position.add(velocity);
         lastAcceleration.set(acceleration);
@@ -73,22 +74,25 @@ public class BobMover {
         gc.fillText("Mover " + name, position.getX() + 6, position.getY() + fontOffsetY);
 
         fontOffsetY += fm.getLineHeight();
-        gc.fillText(position.getX() + ":" + position.getY(), position.getX() + 6, position.getY() + fontOffsetY);
+        gc.fillText(position.getDisplay(), position.getX() + 6, position.getY() + fontOffsetY);
 
         fontOffsetY += fm.getLineHeight();
-        gc.fillText(velocity.getX() + ":" + velocity.getY(), position.getX() + 6, position.getY() + fontOffsetY);
+        gc.fillText(velocity.getDisplay(), position.getX() + 6, position.getY() + fontOffsetY);
+
+        fontOffsetY += fm.getLineHeight();
+        gc.fillText(lastAcceleration.getDisplay(), position.getX() + 6, position.getY() + fontOffsetY);
 
     }
 
     private void draw(GraphicsContext gc, BobVector value, Color color) {
         gc.setStroke(color);        
         gc.setLineWidth(1);
-        BobVector posCopy = new BobVector(position);
-        BobVector valCopy = new BobVector(value);
-        valCopy.multiply(10);
-        posCopy.add(valCopy);
+        BobVector positionCopy = new BobVector(position);
+        BobVector valueCopy = new BobVector(value);
+        valueCopy.multiply(10);
+        positionCopy.add(valueCopy);
         // direction.multiply(3d);
-        gc.strokeLine(position.getX(), position.getY(), posCopy.getX(), posCopy.getY());
+        gc.strokeLine(position.getX(), position.getY(), positionCopy.getX(), positionCopy.getY());
     }
     
     public BobVector getPosition() {

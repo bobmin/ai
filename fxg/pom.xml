@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>bob.fxg</groupId>
 	<artifactId>FxGame</artifactId>
@@ -30,6 +31,7 @@
 	</repositories>
 
 	<dependencies>
+		<!-- mvn versions:display-dependency-updates -->
 
 		<!--Test -->
 
@@ -40,16 +42,89 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- JavaFx -->
+
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-controls</artifactId>
+			<version>11.0.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-fxml</artifactId>
+			<version>11.0.2</version>
+		</dependency>
+
 
 	</dependencies>
 
 	<build>
 		<finalName>fxg</finalName>
 		<plugins>
+			<!-- mvn versions:display-plugin-updates -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<version>3.0.0-M3</version>
+				<executions>
+					<execution>
+						<id>enforce-maven</id>
+						<goals>
+							<goal>enforce</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<requireMavenVersion>
+									<version>3.0.5</version>
+								</requireMavenVersion>
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.0</version>
+				<configuration>
+					<release>11</release>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>${version.surefire}</version>
+				<version>2.22.0</version>
+				<configuration>
+					<argLine> --illegal-access=permit
+					</argLine>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<version>2.22.0</version>
+				<configuration>
+					<argLine> --illegal-access=permit
+					</argLine>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.openjfx</groupId>
+				<artifactId>javafx-maven-plugin</artifactId>
+				<version>0.0.4</version>
+				<configuration>
+					<mainClass>bob.fxg.BobEngine</mainClass>
+					<options>
+						<option>--module-path</option>
+						<option>C:\\Java\\javafx-sdk-11.0.2\\lib</option>
+						<option>--add-modules</option>
+						<option>ALL-MODULE-PATH</option>
+						<option>--add-exports</option>
+						<option>javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED</option>
+					</options>
+					<commandlineArgs>-Xmx1024m</commandlineArgs>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

@@ -82,4 +82,8 @@ public class BobVector {
         this.y = (y / m);
     }
 
+    public String getDisplay() {
+        return String.format("%.3f:%.3f", x, y);
+    }
+
 }

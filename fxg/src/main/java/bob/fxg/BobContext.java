@@ -6,6 +6,7 @@ public class BobContext {
 
     public int HEIGHT = 600;
 
+    /** die Mausposition */
     public BobVector mouse = new BobVector(0, 0);
 
     public boolean pause = false;
