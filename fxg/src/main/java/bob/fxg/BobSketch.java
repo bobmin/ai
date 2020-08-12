@@ -21,6 +21,7 @@ public class BobSketch {
             int y = (int) (Math.random() * context.HEIGHT);
             mover[i] = new BobMover(String.valueOf(i), x, y, BobUtil.random(MAX_SPEED));
             BobVector impuls = new BobVector(BobUtil.random(IMPULS), BobUtil.random(IMPULS));
+            System.out.printf("[%d] (IMP) %s%n", i, impuls.getDisplay());
             mover[i].applyForce(impuls); 
         }
     }

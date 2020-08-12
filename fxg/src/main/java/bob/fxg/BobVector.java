@@ -86,4 +86,11 @@ public class BobVector {
         return String.format("%.3f:%.3f", x, y);
     }
 
+	public void limit(double maxSpeed) {
+        if (magnitude() > maxSpeed) {
+            normalize();
+            multiply(maxSpeed);
+        }
+	}
+
 }
