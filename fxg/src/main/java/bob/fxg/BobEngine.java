@@ -3,6 +3,7 @@ package bob.fxg;
 import java.util.ArrayList;
 import java.util.List;
 
+import bob.fxg.BobContext.KeyState;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.event.EventHandler;
@@ -10,7 +11,6 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
@@ -36,26 +36,29 @@ public class BobEngine extends Application {
         Canvas canvas = new Canvas(context.WIDTH, context.HEIGHT);
         root.getChildren().add(canvas);
 
-        /**
-         * Der Zwischenspeicher für die Tatstatur. Einige Tasten sollen hin und
-         * her geschaltet werden können.
-         */
-        List<String> toggleCache = new ArrayList<>();
-
         theScene.setOnKeyPressed(new EventHandler<KeyEvent>() {
             public void handle(KeyEvent e) {
                 String code = e.getCode().toString();
 
                 // only add once... prevent duplicates
-                boolean added = false;
                 if ("SHIFT".equals(code)) {
                     context.shift = true;
-                } else if (!toggleCache.contains(code)) {
-                    toggleCache.add(code);
-                    added = true;
+
+                } else if ("P".equals(code)) {
+                    KeyState initState = context.pauseState;
+                    KeyState nextState;
+                    if (initState == KeyState.OFF) {
+                        nextState = KeyState.OFF_TO_ON;
+                    } else if (initState == KeyState.ON) {
+                        nextState = KeyState.ON_TO_OFF;
+                    } else {
+                        nextState = initState;
+                    }
+                    System.out.println("p_pressed: init=" + initState + ", next=" + nextState);
+                    context.pauseState = nextState;
+
                 }
 
-                System.out.println("key pressed: " + code + ", added=" + added);
             }
         });
 
@@ -64,10 +67,21 @@ public class BobEngine extends Application {
                 String code = e.getCode().toString();
                 if ("SHIFT".equals(code)) {
                     context.shift = false;
-                } else {
-                    toggleCache.remove(code);
+
+                } else if ("P".equals(code)) {
+                    KeyState initState = context.pauseState;
+                    KeyState nextState;
+                    if (initState == KeyState.OFF_TO_ON) {
+                        nextState = KeyState.ON;
+                    } else if (initState == KeyState.ON_TO_OFF) {
+                        nextState = KeyState.OFF;
+                    } else {
+                        nextState = initState;
+                    }
+                    System.out.println("p_released: init=" + initState + ", next=" + nextState);
+                    context.pauseState = nextState;
+
                 }
-                System.out.println("key released: " + code);
             }
         });
 
@@ -111,7 +125,7 @@ public class BobEngine extends Application {
                     context.mouse.multiply(0);
                 }
 
-                if (!context.pause) {
+                if (context.pauseState.isNotActive()) {
                     // neuen Zustand berechnen
                     sketch.update(context);
                 }
@@ -127,16 +141,11 @@ public class BobEngine extends Application {
 
                 // Fußzeile
                 StringBuffer footer = new StringBuffer();
-                footer.append("Pause: ").append(context.pause ? "ON" : "OFF");
+                footer.append("Pause: ").append(context.pauseState.getLabel());
                 footer.append("  ");
                 footer.append("Debug: ").append(context.debug ? "ON" : "OFF");
                 gc.fillText(footer.toString(), 10, context.HEIGHT - 10);
                 // gc.strokeText(footer, 10, context.HEIGHT - 10);
-
-                if (toggleCache.contains("P")) {
-                    context.pause = !context.pause;
-                    toggleCache.remove("P");
-                }
 
             }
         }.start();

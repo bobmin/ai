@@ -20,7 +20,7 @@ public class BobSketchImpl implements BobSketch {
             int x = (int) (Math.random() * context.WIDTH);
             int y = (int) (Math.random() * context.HEIGHT);
             mover[i] = new BobMover(
-                    String.valueOf(i), x, y, BobUtil.random(MAX_SPEED));
+                    String.valueOf(i), x, y, BobUtil.random(1, MAX_SPEED));
             BobVector impuls = new BobVector(
                     BobUtil.random(MAX_IMPULS),
                     BobUtil.random(MAX_IMPULS));
