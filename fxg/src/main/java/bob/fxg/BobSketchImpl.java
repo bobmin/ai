@@ -7,7 +7,7 @@ public class BobSketchImpl implements BobSketch {
 
     private static final int COUNT = 3;
     private static final int MAX_SPEED = 10;
-    private static final int IMPULS = 3;
+    private static final int MAX_IMPULS = 3;
 
     /** die bewegten Punkten */
     private BobMover[] mover = new BobMover[COUNT];
@@ -19,9 +19,12 @@ public class BobSketchImpl implements BobSketch {
         for (int i=0; i<COUNT; i++) {
             int x = (int) (Math.random() * context.WIDTH);
             int y = (int) (Math.random() * context.HEIGHT);
-            mover[i] = new BobMover(String.valueOf(i), x, y, BobUtil.random(MAX_SPEED));
-            BobVector impuls = new BobVector(BobUtil.random(IMPULS), BobUtil.random(IMPULS));
-            System.out.printf("[%d] (IMP) %s%n", i, impuls.getDisplay());
+            mover[i] = new BobMover(
+                    String.valueOf(i), x, y, BobUtil.random(MAX_SPEED));
+            BobVector impuls = new BobVector(
+                    BobUtil.random(MAX_IMPULS),
+                    BobUtil.random(MAX_IMPULS));
+            System.out.printf("[%d] impuls %s%n", i, impuls.getDisplay());
             mover[i].applyForce(impuls); 
         }
     }
