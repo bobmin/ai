@@ -10,11 +10,10 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
@@ -37,37 +36,55 @@ public class BobEngine extends Application {
         Canvas canvas = new Canvas(context.WIDTH, context.HEIGHT);
         root.getChildren().add(canvas);
 
-        List<String> input = new ArrayList<>();
+        /**
+         * Der Zwischenspeicher für die Tatstatur. Einige Tasten sollen hin und
+         * her geschaltet werden können.
+         */
+        List<String> toggleCache = new ArrayList<>();
 
         theScene.setOnKeyPressed(new EventHandler<KeyEvent>() {
             public void handle(KeyEvent e) {
                 String code = e.getCode().toString();
 
                 // only add once... prevent duplicates
-                if (!input.contains(code)) {
-                    input.add(code);
+                boolean added = false;
+                if ("SHIFT".equals(code)) {
+                    context.shift = true;
+                } else if (!toggleCache.contains(code)) {
+                    toggleCache.add(code);
+                    added = true;
                 }
+
+                System.out.println("key pressed: " + code + ", added=" + added);
             }
         });
 
         theScene.setOnKeyReleased(new EventHandler<KeyEvent>() {
             public void handle(KeyEvent e) {
                 String code = e.getCode().toString();
-                input.remove(code);
+                if ("SHIFT".equals(code)) {
+                    context.shift = false;
+                } else {
+                    toggleCache.remove(code);
+                }
+                System.out.println("key released: " + code);
             }
         });
 
         theScene.setOnMouseClicked(new EventHandler<MouseEvent>() {
             public void handle(MouseEvent e) {
-                context.mouse.setX(e.getX());
-                context.mouse.setY(e.getY());
+                double x = e.getX();
+                double y = e.getY();
+                context.mouse.setX(x);
+                context.mouse.setY(y);
+                System.out.println("click at (" + x + ":" + y + "), shift=" + context.shift);
             }
         });
 
         GraphicsContext gc = canvas.getGraphicsContext2D();
         reset(gc);
 
-        BobSketch sketch = new BobSketch();
+        BobSketchImpl sketch = new BobSketchImpl();
         sketch.setup(context);
 
         // Image earth = new Image("earth.png");
@@ -83,9 +100,23 @@ public class BobEngine extends Application {
                 // background image clears canvas
                 // gc.drawImage(earth, x, y);
                 
+                // FIXME: Event-Bus einführen (Key/Mouse unabhängig von Animation)
+
+                if (context.shift 
+                        && 0 < context.mouse.getX() 
+                        && 0 < context.mouse.getY()) {
+                    // Mover markieren
+                    sketch.select(context.mouse.getX(), context.mouse.getY());
+                    // Mausaktion konsumieren
+                    context.mouse.multiply(0);
+                }
+
                 if (!context.pause) {
+                    // neuen Zustand berechnen
                     sketch.update(context);
                 }
+
+                // den Zustand zeichnen
                 sketch.draw(context, gc);
 
                 reset(gc);
@@ -102,9 +133,9 @@ public class BobEngine extends Application {
                 gc.fillText(footer.toString(), 10, context.HEIGHT - 10);
                 // gc.strokeText(footer, 10, context.HEIGHT - 10);
 
-                if (input.contains("P")) {
+                if (toggleCache.contains("P")) {
                     context.pause = !context.pause;
-                    input.remove("P");
+                    toggleCache.remove("P");
                 }
 
             }
