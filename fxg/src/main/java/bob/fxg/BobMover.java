@@ -22,6 +22,8 @@ public class BobMover {
 
     private final BobVector lastAcceleration;
 
+    private boolean selected = false;
+
     public BobMover(String name, int x, int y, double maxSpeed) {
         this.name = name;
         this.maxSpeed = maxSpeed;
@@ -62,6 +64,12 @@ public class BobMover {
         
         // der Punkt
         gc.fillOval(location.getX() - 5, location.getY() - 5, 10, 10);
+        if (selected) {
+            gc.setStroke(Color.PINK);   
+            gc.setLineWidth(2);
+            gc.strokeOval(location.getX() - 6, location.getY() - 6, 12, 12);
+        }
+
 
         // die Beschriftung
         Font font = Font.font( "Helvetica", FontWeight.BOLD, 12);
@@ -97,4 +105,17 @@ public class BobMover {
     public BobVector getPosition() {
         return location;
     }
+
+	public void setSelected(boolean state) {
+        this.selected = state;
+	}
+
+	public boolean contains(double x, double y) {
+        boolean m = false;
+        if ((Math.pow((x - location.getX()), 2) + Math.pow((y - location.getY()), 2)) < Math.pow(10, 2)) {
+            m = true;
+        }
+        System.out.println("match: " + m);
+		return m;
+	}
 }

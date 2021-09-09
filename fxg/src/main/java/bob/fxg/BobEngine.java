@@ -3,6 +3,7 @@ package bob.fxg;
 import java.util.ArrayList;
 import java.util.List;
 
+import bob.fxg.BobContext.KeyState;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.event.EventHandler;
@@ -10,11 +11,9 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
@@ -37,37 +36,69 @@ public class BobEngine extends Application {
         Canvas canvas = new Canvas(context.WIDTH, context.HEIGHT);
         root.getChildren().add(canvas);
 
-        List<String> input = new ArrayList<>();
-
         theScene.setOnKeyPressed(new EventHandler<KeyEvent>() {
             public void handle(KeyEvent e) {
                 String code = e.getCode().toString();
 
                 // only add once... prevent duplicates
-                if (!input.contains(code)) {
-                    input.add(code);
+                if ("SHIFT".equals(code)) {
+                    context.shift = true;
+
+                } else if ("P".equals(code)) {
+                    KeyState initState = context.pauseState;
+                    KeyState nextState;
+                    if (initState == KeyState.OFF) {
+                        nextState = KeyState.OFF_TO_ON;
+                    } else if (initState == KeyState.ON) {
+                        nextState = KeyState.ON_TO_OFF;
+                    } else {
+                        nextState = initState;
+                    }
+                    System.out.println("p_pressed: init=" + initState + ", next=" + nextState);
+                    context.pauseState = nextState;
+
                 }
+
             }
         });
 
         theScene.setOnKeyReleased(new EventHandler<KeyEvent>() {
             public void handle(KeyEvent e) {
                 String code = e.getCode().toString();
-                input.remove(code);
+                if ("SHIFT".equals(code)) {
+                    context.shift = false;
+
+                } else if ("P".equals(code)) {
+                    KeyState initState = context.pauseState;
+                    KeyState nextState;
+                    if (initState == KeyState.OFF_TO_ON) {
+                        nextState = KeyState.ON;
+                    } else if (initState == KeyState.ON_TO_OFF) {
+                        nextState = KeyState.OFF;
+                    } else {
+                        nextState = initState;
+                    }
+                    System.out.println("p_released: init=" + initState + ", next=" + nextState);
+                    context.pauseState = nextState;
+
+                }
             }
         });
 
         theScene.setOnMouseClicked(new EventHandler<MouseEvent>() {
             public void handle(MouseEvent e) {
-                context.mouse.setX(e.getX());
-                context.mouse.setY(e.getY());
+                double x = e.getX();
+                double y = e.getY();
+                context.mouse.setX(x);
+                context.mouse.setY(y);
+                System.out.println("click at (" + x + ":" + y + "), shift=" + context.shift);
             }
         });
 
         GraphicsContext gc = canvas.getGraphicsContext2D();
         reset(gc);
 
-        BobSketch sketch = new BobSketch();
+        BobSketchImpl sketch = new BobSketchImpl();
         sketch.setup(context);
 
         // Image earth = new Image("earth.png");
@@ -83,9 +114,23 @@ public class BobEngine extends Application {
                 // background image clears canvas
                 // gc.drawImage(earth, x, y);
                 
-                if (!context.pause) {
+                // FIXME: Event-Bus einführen (Key/Mouse unabhängig von Animation)
+
+                if (context.shift 
+                        && 0 < context.mouse.getX() 
+                        && 0 < context.mouse.getY()) {
+                    // Mover markieren
+                    sketch.select(context.mouse.getX(), context.mouse.getY());
+                    // Mausaktion konsumieren
+                    context.mouse.multiply(0);
+                }
+
+                if (context.pauseState.isNotActive()) {
+                    // neuen Zustand berechnen
                     sketch.update(context);
                 }
+
+                // den Zustand zeichnen
                 sketch.draw(context, gc);
 
                 reset(gc);
@@ -96,16 +141,11 @@ public class BobEngine extends Application {
 
                 // Fußzeile
                 StringBuffer footer = new StringBuffer();
-                footer.append("Pause: ").append(context.pause ? "ON" : "OFF");
+                footer.append("Pause: ").append(context.pauseState.getLabel());
                 footer.append("  ");
                 footer.append("Debug: ").append(context.debug ? "ON" : "OFF");
                 gc.fillText(footer.toString(), 10, context.HEIGHT - 10);
                 // gc.strokeText(footer, 10, context.HEIGHT - 10);
-
-                if (input.contains("P")) {
-                    context.pause = !context.pause;
-                    input.remove("P");
-                }
 
             }
         }.start();

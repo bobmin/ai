@@ -72,3 +72,4 @@ Mit "ant clean" werden die Verzeichnisse "build" und "dist" gelöscht.
 
 * [Introduction to JavaFX for Game Development](https://gamedevelopment.tutsplus.com/tutorials/introduction-to-javafx-for-game-development--cms-23835)
 * [Processing Reference](https://processing.org/reference/)
+* [JavaFX Game Development Framework](https://github.com/AlmasB/FXGL)
