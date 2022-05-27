@@ -4,6 +4,8 @@ https://help.github.com/articles/basic-writing-and-formatting-syntax/
 
 [Was ist Machine Learning? Definition, Algorithmen und Beispiele von maschinellem Lernen](https://datadrivencompany.de/machine-learning-definition-algorithmen-und-beispiele/)
 
+[Self-Driving Car with JavaScript Course – Neural Networks and Machine Learning](https://youtu.be/Rs_rAxEsAvI)
+
 # gsrv
 
 Ein Server mit REST-Schnittstellen zum Betrieb der KI im Netzwerk.
