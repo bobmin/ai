@@ -1,0 +1,23 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: darkslategrey;
+}
+
+#jsg-layout {
+    height: 100vh;
+}
+
+#canvasMain {
+    background-color: black;
+    color: gray;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 50%;
+    margin-top: -200px;
+}
