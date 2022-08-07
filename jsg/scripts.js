@@ -25,14 +25,13 @@ addEventListener("load", (evt) => {
             this.degree += 1;
             if (this.degree > 360) this.degree = 0;
             // abhängige Werte
-            // angleShow = (angle > 90 ? (angle - 90) : (360 - 90 + angle));
+            // angle = (angle > 90 ? (angle - 90) : (360 - 90 + angle));
             this.radian = this.degree * (Math.PI / 180);
             this.sin_of_radian = Math.cos(this.radian);
             this.cos_of_radian = Math.sin(this.radian);
         }
     }
-    const angleDraw = new Angle(0);
-    const angleShow = new Angle(90);
+    const angle = new Angle(0);
 
     class Point {
         constructor(x, y) {
@@ -84,24 +83,36 @@ addEventListener("load", (evt) => {
         }
         update() {
             // X
-            const offsetX = angleDraw.cos_of_radian * circleRadius * -1;
+            const offsetX = angle.cos_of_radian * circleRadius * -1;
             this.pointX = this.x + offsetX;
             // Y
-            const offsetY = angleDraw.sin_of_radian * circleRadius * -1;
+            const offsetY = angle.sin_of_radian * circleRadius * -1;
             this.pointY = this.y + offsetY;
         }
         draw() {
-            // Mittelpunkt
-            this.stage.drawPoint(this.x, this.y, "rgba(80,80,80,0.6)");
-
             // Kreis
-            this.stage.drawCircle(this.x, this.y, 2 * Math.PI, COLOR_GREEN);
-            
-            const progress = ((2 * Math.PI / 180) - angleShow.radian);
-            this.stage.drawCircle(this.x, this.y, progress, "rgba(0,0,0,1)");
+            this.stage.drawCircle(this.x, this.y, 2 * Math.PI, COLOR_GRAY);
+
+            // const progress = angle.radian;
+            // this.stage.drawCircle(this.x, this.y, progress, COLOR_GREEN);
+
+            // 0°
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y);
+            ctx.lineTo(this.x, this.y - circleRadius);
+            ctx.stroke();
+
+            // n°
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y);
+            ctx.lineTo(this.pointX, this.pointY);
+            ctx.stroke();
 
             // Kreispunkt
             this.stage.drawPoint(this.pointX, this.pointY, COLOR_GREEN);
+
+            // Mittelpunkt
+            this.stage.drawPoint(this.x, this.y, "rgba(80,80,80,1)");
 
         }
     }
@@ -109,21 +120,23 @@ addEventListener("load", (evt) => {
     class Display {
         constructor(lineNr, content) {
             this.x = circleX + circleRadius + 20;
-            this.y = 15 + (lineNr * 30);
+            this.y = 45 + (2 * circleRadius) + (lineNr * 30);
             this.content = content;
             this.message = "???";
         }
         update() {
-            if (this.content === "angle") {
-                this.message = "Winkel: " + angleShow.degree; // + "° | " + angleDraw.degree + "° | " + (angleDraw.degree - angleShow.degree + "°");
-            } else if (this.content === "radian") {
-                this.message = "Radian: " + angleShow.radian;
-            } else if (this.content === "sin_of_radian") {
-                this.message = "sin: " + angleShow.sin_of_radian;
-            } else if (this.content === "cos_of_radian") {
-                this.message = "cos: " + angleShow.cos_of_radian;
-            } else {
-                this.message = "???";
+            if (angle.degree % 5 === 0) {
+                if (this.content === "angle") {
+                    this.message = "Winkel: " + angle.degree; // + "° | " + angle.degree + "° | " + (angle.degree - angle.degree + "°");
+                } else if (this.content === "radian") {
+                    this.message = "Radian: " + angle.radian;
+                } else if (this.content === "sin_of_radian") {
+                    this.message = "sin: " + angle.sin_of_radian;
+                } else if (this.content === "cos_of_radian") {
+                    this.message = "cos: " + angle.cos_of_radian;
+                } else {
+                    this.message = "???";
+                }
             }
         }
         draw() {
@@ -139,7 +152,7 @@ addEventListener("load", (evt) => {
         constructor() {
             this.length = (circleRadius * 2) * 2;
             // "grüne Linie"
-            this.greenLine = [];
+            this.greenLine = new Map();
         }
         update() {
         }
@@ -148,19 +161,25 @@ addEventListener("load", (evt) => {
             ctx.fillStyle = "rgba(80,80,80,0.6)";
             ctx.fillRect(this.x, this.y, this.width, this.height);
             // "grüner Graph"
-            if (0 < this.greenLine.length) {
+            if (this.greenLine.size >= 2) {
+                ctx.strokeStyle = COLOR_GREEN;
                 ctx.beginPath();
-                ctx.moveTo(this.greenLine[0].x, this.greenLine[0].y);
-                this.greenLine.forEach((p) => {
-                    ctx.lineTo(p.x, p.y);
-                });
+                let idx = 0;
+                for (const [a, p] of this.greenLine.entries()) {
+                    if (idx === 0) {
+                        ctx.moveTo(p.x, p.y);
+                    } else {
+                        ctx.lineTo(p.x, p.y);
+                    }
+                    idx++;
+                }
                 ctx.stroke();
             }
         }
-        storePoint(p) {
-            if (this.greenLine.length < 360
-                    && angleDraw.degree > 0) {
-                this.greenLine.push(new Point(p.x, p.y));
+        // Punkt zum Winkel für "grüne Linie" merken
+        storePoint(a, p) {
+            if (a > 0) {
+                this.greenLine.set(a, new Point(p.x, p.y));
             }
         }
     }
@@ -182,12 +201,14 @@ addEventListener("load", (evt) => {
             this.greenPoint = new Point(this.x, this.y + (this.height / 2));
         }
         update() {
-            const x = this.x + (this.length * angleShow.degree / 360);
-            this.bluePoint.x = x;
-            this.greenPoint.x = x;
-            const offsetY = angleDraw.sin_of_radian * circleRadius * -1;
-            this.greenPoint.y = this.bluePoint.y + offsetY;
-            super.storePoint(this.greenPoint);
+            if (angle.degree > 0) {
+                const x = this.x + (this.length * angle.degree / 360);
+                this.bluePoint.x = x;
+                this.greenPoint.x = x;
+                const offsetY = angle.sin_of_radian * circleRadius * -1;
+                this.greenPoint.y = this.bluePoint.y + offsetY;
+                super.storePoint(angle.degree, this.greenPoint);
+            }
         }
         draw() {
             super.draw();
@@ -214,12 +235,14 @@ addEventListener("load", (evt) => {
             this.greenPoint = new Point(this.x + (this.width / 2), this.y + this.height);
         }
         update() {
-            const y = this.y + this.height - (this.height * angleShow.degree / 360);
-            this.bluePoint.y = y;
-            this.greenPoint.y = y;
-            const offsetX = angleDraw.cos_of_radian * circleRadius * -1;
-            this.greenPoint.x = this.bluePoint.x + offsetX;
-            super.storePoint(this.greenPoint);
+            if (angle.degree > 0) {
+                const y = this.y + this.height - (this.height * angle.degree / 360);
+                this.bluePoint.y = y;
+                this.greenPoint.y = y;
+                const offsetX = angle.cos_of_radian * circleRadius * -1;
+                this.greenPoint.x = this.bluePoint.x + offsetX;
+                super.storePoint(angle.degree, this.greenPoint);
+            }
         }
         draw() {
             super.draw();
@@ -233,12 +256,15 @@ addEventListener("load", (evt) => {
 
     const elements = [];
     elements.push(new Circle(stage));
-    elements.push(new Display(1, "angle"));
-    elements.push(new Display(2, "radian"));
-    elements.push(new Display(3, "sin_of_radian"));
-    elements.push(new Display(4, "cos_of_radian"));
     elements.push(new GraphVertical(stage));
     elements.push(new GraphHorizontal(stage));
+
+    const displays = [];
+    displays.push(new Display(1, "angle"));
+    displays.push(new Display(2, "radian"));
+    displays.push(new Display(3, "sin_of_radian"));
+    displays.push(new Display(4, "cos_of_radian"));
+
 
     let lastTimestamp = 0;
 
@@ -252,13 +278,29 @@ addEventListener("load", (evt) => {
 
         } else {
             ctx.clearRect(0, 0, width, height);
+
+            [...elements, ...displays].forEach((element) => {
+                element.update();
+            });
+
+            ctx.save();
+
+            ctx.translate(circleX, circleY);
+            ctx.rotate(90 * Math.PI / 180);
+            ctx.transform(1,0,0,1,-320,-280);
+
             [...elements].forEach((element) => {
                 element.update();
                 element.draw();
             });
 
-            angleDraw.update();
-            angleShow.update();
+            ctx.restore();
+
+            [...displays].forEach((display) => {
+                display.draw();
+            });
+
+            angle.update();
 
             updateCounter = 0;
         }
